@@ -11,9 +11,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Problem.belongsTo(models.User,{
+        foreignKey:'userId'
+      });
+
+      Problem.hasMany(models.Solution,{
+        foreignKey:'problemId'
+      });
+
+      Problem.hasMany(models.Note,{
+        foreignKey:'problemId'
+      });
     }
   }
   Problem.init({
+    userId: DataTypes.BIGINT,
     statement: DataTypes.STRING,
     link: DataTypes.STRING,
     status: DataTypes.STRING,

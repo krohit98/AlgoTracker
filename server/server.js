@@ -12,7 +12,7 @@ app.use(cookieParser())
 
 const authRoutes = require('./routes/authRoutes');
 
-app.use('/apis/auth',authRoutes);
+app.use('/apis/auth', authRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Server running on port ${PORT}`);

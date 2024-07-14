@@ -7,6 +7,6 @@ router.route('/register').post(register);
 router.route('/login').post(login);
 router.route('/refresh').get(refresh);
 router.route('/logout').get(logout);
-router.route('/authenticate').get(authenticate);
+router.route('/authenticate').get(authenticate); 
 
 module.exports = router; 
