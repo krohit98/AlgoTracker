@@ -9,8 +9,8 @@ const Dashboard = () => {
     const [display, setDisplay] = React.useState('list');
   
     function getAppData(){
-      let allData = service.getAllData();
-      setAppData(allData);
+      // let allData = service.getAllData();
+      // setAppData(allData);
     }
   
     function handleClick(e, displayItem){
@@ -25,7 +25,7 @@ const Dashboard = () => {
 
     return(
         <div>
-            <div id="tracker-tab-menu">
+            {/* <div id="tracker-tab-menu">
                 <div className="tracker-tab tracker-tab-active" onClick={(e)=>handleClick(e,'list')}>View problem list</div>
                 <div className="tracker-tab" onClick={(e)=>handleClick(e,'form')}>Add new problem</div>
             </div>
@@ -34,7 +34,7 @@ const Dashboard = () => {
                 <ProblemForm />
                 :
                 <ProblemList problemArray={appData}/>
-            }
+            } */}
         </div>
     )
 }

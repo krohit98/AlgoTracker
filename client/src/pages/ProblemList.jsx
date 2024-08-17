@@ -62,53 +62,53 @@ const ProblemList = (props) => {
     },[selectedTopic]);
     
     return(
-        <>
-        <div id="topic-filter-section" className='mb-3'>
-            {
-                topics.map(topic =>{
-                    return(
-                        <div className="topic-filter" onClick={(e)=>selectTopic(e, topic)}>{topic}</div>
-                    )
-                })
-            }
-        </div>
-        <table className='table table-sm align-middle bg-white text-center'>
-            <thead>
-                <tr className='table-dark'>
-                    <th>#</th>
-                    <th>Topic</th>
-                    <th className='w-50'>Statement</th>
-                    <th>Level</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            {problems.display.map((problem,index)=>{
-                let rowStyle = problem.status === "Solved"?"table-success":problem.status === "Unsolved"?"table-danger":"table-warning";
-                return(
-                    <tr className={rowStyle}>
-                        <td>{index+1}</td>
-                        <td>{problem.topic}</td>
-                        <td className='w-50'><a href={problem.link} target="_blank" rel="noreferrer">{problem.statement}</a></td>
-                        <td>{problem.level}</td>
-                        <td>{problem.status}</td>
-                        <td>
-                            <div className='btn-group'>
-                            <button className='btn btn-dark' title="Flag" onClick={(e)=>flagProblem(e)}><i class="bi bi-flag"></i></button>
-                            <button className="btn btn-dark" title="View Notes" disabled={problem.notes?false:true} onClick={()=>setNotes(problem.notes)} data-bs-toggle="modal" data-bs-target="#notes-modal"><i class="bi bi-eye-fill"></i></button>
-                            <button className="btn btn-dark" title="View Solution" disabled={problem.solution?false:true}><i class="bi bi-code-slash"></i></button>
-                            <button className='btn btn-dark' title="Edit"><i class="bi bi-pencil-fill"></i></button>
-                            <button className='btn btn-danger' title="Delete"><i class="bi bi-trash-fill"></i></button>
-                            </div>
-                        </td>
+        <div className='w-100'>
+            <div id="topic-filter-section" className='mb-3'>
+                {
+                    topics.map(topic =>{
+                        return(
+                            <div className="topic-filter" onClick={(e)=>selectTopic(e, topic)}>{topic}</div>
+                        )
+                    })
+                }
+            </div>
+            <table className='table table-sm align-middle bg-white text-center'>
+                <thead>
+                    <tr className='table-dark'>
+                        <th>#</th>
+                        <th>Topic</th>
+                        <th className='w-50'>Statement</th>
+                        <th>Level</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
-                )
-            })}
-            </tbody>
-        </table>
-        <NotesPopup content={notes}/>
-        </>
+                </thead>
+                <tbody>
+                {problems.display.map((problem,index)=>{
+                    let rowStyle = problem.status === "Solved"?"table-success":problem.status === "Unsolved"?"table-danger":"table-warning";
+                    return(
+                        <tr className={rowStyle}>
+                            <td>{index+1}</td>
+                            <td>{problem.topic}</td>
+                            <td className='w-50'><a href={problem.link} target="_blank" rel="noreferrer">{problem.statement}</a></td>
+                            <td>{problem.level}</td>
+                            <td>{problem.status}</td>
+                            <td>
+                                <div className='btn-group'>
+                                <button className='btn btn-dark' title="Flag" onClick={(e)=>flagProblem(e)}><i class="bi bi-flag"></i></button>
+                                <button className="btn btn-dark" title="View Notes" disabled={problem.notes?false:true} onClick={()=>setNotes(problem.notes)} data-bs-toggle="modal" data-bs-target="#notes-modal"><i class="bi bi-eye-fill"></i></button>
+                                <button className="btn btn-dark" title="View Solution" disabled={problem.solution?false:true}><i class="bi bi-code-slash"></i></button>
+                                <button className='btn btn-dark' title="Edit"><i class="bi bi-pencil-fill"></i></button>
+                                <button className='btn btn-danger' title="Delete"><i class="bi bi-trash-fill"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    )
+                })}
+                </tbody>
+            </table>
+            <NotesPopup content={notes}/>
+        </div>
     )
 }
 

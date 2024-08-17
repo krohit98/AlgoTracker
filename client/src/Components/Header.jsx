@@ -1,8 +1,24 @@
 import * as React from 'react';
+import UserContext from '../Contexts/LoggedInUserContext';
 
 const Header = () => {
+
+    const [user] = React.useContext(UserContext);
+
     return(
-        <h1 className='display-6 text-center text-dark'>Algo Tracker</h1>
+        <>
+            {   user &&
+                <div id='header' className='d-flex justify-content-between'>
+                    <div>
+                        <span>AlgoTracker</span>
+                        <span> | </span>
+                        <span>Page Name</span>
+                    </div>
+                    
+                    <span>{user.email}</span>
+                </div>
+            }
+        </>
     )
 }
 

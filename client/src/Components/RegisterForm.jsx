@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as auth from '../Service/auth';
+// import * as auth from '../Service/auth';
 import * as helper from '../Service/helper';
 import { Link } from 'react-router-dom';
 
@@ -23,16 +23,16 @@ const RegisterForm = (props) => {
             helper.showError("Passwords do not match. Kindly try again!");
             return;
         }
-        auth.register(formData.email, formData.password);
+        // auth.register(formData.email, formData.password);
     }
 
     return(
         <div id='register-wrapper'>
             <form action="" id="register-form">
                 <label htmlFor="" className="form-label">Name</label>
-                <input type="email" className="form-control mb-2 name-input" value={formData.name} onChange={(e)=>changeHandler('name',e.target.value)}/>
+                <input type="email" className="form-control mb-3 name-input" value={formData.name} onChange={(e)=>changeHandler('name',e.target.value)}/>
                 <label htmlFor="" className="form-label">Email</label>
-                <input type="email" className="form-control mb-2 email-input" value={formData.email} onChange={(e)=>changeHandler('email',e.target.value)}/>
+                <input type="email" className="form-control mb-3 email-input" value={formData.email} onChange={(e)=>changeHandler('email',e.target.value)}/>
                 <label htmlFor="" className="form-label password-label">
                     <span>Password</span>
                     <span>
@@ -40,7 +40,7 @@ const RegisterForm = (props) => {
                         <small>Show Password</small>
                     </span>
                 </label>
-                <input type="password" className="form-control mb-2 password-input" id="register-pass" value={formData.password} onChange={(e)=>changeHandler('password',e.target.value)}/>
+                <input type="password" className="form-control mb-3 password-input" id="register-pass" value={formData.password} onChange={(e)=>changeHandler('password',e.target.value)}/>
                 <label htmlFor="" className="form-label password-label">
                     <span>Confirm Password</span>
                 </label>
