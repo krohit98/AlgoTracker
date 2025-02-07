@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Note.init({
     problemId: DataTypes.NUMBER,
-    content: DataTypes.STRING,
+    content: DataTypes.TEXT,
     title: DataTypes.STRING
   }, {
     sequelize,

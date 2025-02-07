@@ -5,12 +5,11 @@ const jwt = require('jsonwebtoken');
 const register = async(req,res) => {
     const {
         name,
-        age,
         email, 
         password
     } = req.body;
 
-    if(!(name && age && email && password)) return res.status(400).send('All input required!')
+    if(!(name && email && password)) return res.status(400).send('All input required!')
     
     const existingUser = await User.findOne({where:{email:email}});
     if(existingUser) return res.status(400).send('User already exists! Kindly login.');
@@ -20,14 +19,13 @@ const register = async(req,res) => {
 
     const createdUser = await User.create({
         name,
-        age,
         email,
         password:hash
     });
 
     res.status(200).send({
-        email:createdUser.email,
-        password
+        success:true,
+        body:{message:"User created. Kindly login!"}
     })
 }
 
@@ -37,15 +35,15 @@ const login = async(req,res) => {
         password
     } = req.body;
 
-    if(!email || !password) return res.status(404).send('All input required!')
+    if(!email || !password) return res.status(404).send({success:false,body:{message:'All input required!'}})
 
     const existingUser = await User.findOne({where:{email:email}});
 
-    if(!existingUser) return res.status(404).send('User not registered! Kindly register.')
+    if(!existingUser) return res.status(404).send({success:false,body:{message:'User not registered! Kindly register.'}})
 
     const validPassword = await bcrypt.compare(password, existingUser.password);
 
-    if(!validPassword) return res.status(400).send('Invalid credentials.')
+    if(!validPassword) return res.status(400).send({success:false,body:{message:'Invalid credentials!'}})
 
     const userObject = {name:existingUser.name, email}
 
@@ -73,24 +71,27 @@ const login = async(req,res) => {
     })
 
     res.status(200).send({
-        name:existingUser.name,
-        age:existingUser.age,
-        email:existingUser.email
+        success:true,
+        body:{
+            name:existingUser.name,
+            email:existingUser.email,
+            userId:existingUser.id
+        }
     })
 }
 
 const refresh = (req,res) => {
-    if(!req.cookies?.refreshjwt) return res.status(401).send('Unauthorized! Refresh token not found.')
+    if(!req.cookies?.refreshjwt) return res.status(401).send({success:false,body:{message:'Unauthorized! Refresh token not found.'}})
 
     const refreshToken = req.cookies.refreshjwt;
 
     jwt.verify(refreshToken, process.env.REFRESH_KEY,
         async (error, decoded) => {
-            if(error) return res.status(401).send('Unauthorized! Invalid refresh token.')
+            if(error) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
 
             const user = await User.findOne({where:{email:decoded.userObject.email}})
 
-            if(!user) return res.status(401).send('Unauthorized! Invalid refresh token.')
+            if(!user) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
 
             const accessToken = generateAccessToken({userObject:decoded.userObject});
             res.cookie('accessjwt', accessToken ,{
@@ -98,23 +99,23 @@ const refresh = (req,res) => {
                 secure:false,
                 sameSite:'strict',
             })
-            .send('Access token refreshed!') 
+            .send({success:true,body:{message:'Access token refreshed!'}}) 
         } 
     )
 }
 
 const logout = (req,res) => {
-    if(!req.cookies?.refreshjwt) return res.status(404).send('Token not found! No session in progress.');
+    if(!req.cookies?.refreshjwt) return res.status(404).send({success:false,body:{message:'Token not found! No session in progress.'}});
 
     const refreshToken = req.cookies.refreshjwt;
     
     jwt.verify(refreshToken, process.env.REFRESH_KEY,
         async (error, decoded) => {
-            if(error) return res.status(401).send('Unauthorized! Invalid refresh token.')
+            if(error) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
 
             const user = await User.findOne({where:{email:decoded.userObject.email}})
 
-            if(!user) return res.status(401).send('Unauthorized! Invalid refresh token.')
+            if(!user) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
 
             const updateObject = {
                 refreshToken:null,
@@ -125,21 +126,21 @@ const logout = (req,res) => {
 
             res.clearCookie('accessjwt');
             res.clearCookie('refreshjwt');
-            res.send('User logged out!')
+            res.send({success:true,body:{message:'User logged out!'}})
         }
     )
 }
 
 const authenticate = (req,res) => {
-    if(!req.cookies?.accessjwt) return res.status(401).send('Unauthorized! Access token not found.');
+    if(!req.cookies?.accessjwt) return res.status(401).send({success:false,body:{message:'Unauthorized! Access token not found.'}});
 
     let accessToken = req.cookies.accessjwt;
 
     jwt.verify(accessToken, process.env.AUTH_KEY,
         (error, decoded) => {
-            if(error) return res.status(401).send('Unauthorized! Invalid access token.')
+            if(error) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid access token.'}})
 
-            res.status(200).send('Resource sent!')
+            res.status(200).send({success:true,body:{message:'Resource sent!'}})
         })
 }
 

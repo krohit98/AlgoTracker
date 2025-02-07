@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.BIGINT
       },
       content: {
-        type: Sequelize.STRING
+        type: Sequelize.TEXT
       },
       title: {
         type: Sequelize.STRING

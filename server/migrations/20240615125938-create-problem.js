@@ -24,6 +24,12 @@ module.exports = {
       difficulty: {
         type: Sequelize.STRING
       },
+      flagged: {
+        type: Sequelize.BOOLEAN
+      },
+      topics:{
+        type:Sequelize.ARRAY(Sequelize.STRING)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

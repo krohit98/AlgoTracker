@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   Solution.init({
     problemId: DataTypes.NUMBER,
     title: DataTypes.STRING,
-    code: DataTypes.STRING
+    code: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'Solution',
