@@ -23,12 +23,15 @@ const LoginForm = (props) => {
     }
 
     function loginUser(){
-        service.login(formData.email, formData.password)
+        service.login({
+            email:formData.email, 
+            password:formData.password
+        })
         .then(response => {
             if(response.success){
                 setUser(response.body);
                 sessionStorage.setItem("algoTrackerLoggedInUser",JSON.stringify(response.body))
-                navigate('/problemlist');
+                navigate('/problem/list');
             }
             else
                 alert(response.body.message);
@@ -52,7 +55,7 @@ const LoginForm = (props) => {
                 </label>
                 <input type="password" className="form-control mb-5 password-input" id="login-pass" value={formData.password} onChange={(e)=>changeHandler('password',e.target.value)}/>
             </form>
-            <div className='auth-btns text-white mt-3'>
+            <div className='auth-btns mt-3'>
                 <button className="btn btn-primary w-100" onClick={loginUser}>Login</button>
                 <div className='d-flex justify-content-between'>
                     <Link to='/register'><small>New User? Register here</small></Link>

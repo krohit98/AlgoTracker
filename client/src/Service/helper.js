@@ -47,11 +47,24 @@ function removePopupAlertStyle(popup){
 function showPopup(){document.getElementById("popup-wrapper").style.display = "flex";}
 function hidePopup(){document.getElementById("popup-wrapper").style.display = "none";}
 
+function getIcon(link){
+    if(link.includes("leetcode")) return "/images/leetcode.svg"
+    else if(link.includes("geeksforgeeks")) return "/images/geeksforgeeks.svg"
+    else if(link.includes("hackerrank")) return "/images/hackerrank.svg"
+    else if(link.includes("codechef")) return "/images/codechef.svg"
+    else if(link.includes("topcoder")) return "/images/topcoder.svg"
+    else if(link.includes("hackerearth")) return "/images/hackerearth.svg"
+    else if(link.includes("codeforces")) return "/images/codeforces.svg"
+    else if(link.includes("codingninjas")) return "/images/codingninjas.svg"
+    else return "/images/code.svg"
+}
+
 export {
     showPassword,
     showError,
     showSuccess,
     showWarning,
     showInfo,
-    hidePopup
+    hidePopup,
+    getIcon
 }

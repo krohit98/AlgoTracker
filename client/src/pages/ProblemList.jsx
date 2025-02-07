@@ -1,113 +1,180 @@
 import * as React from 'react';
-import NotesPopup from '../Components/NotesPopup';
+import * as service from '../Service/service';
+import ProblemTable from '../Components/ProblemTable';
+import { ChevronDown, ChevronUp, Search } from 'react-bootstrap-icons';
+import UserContext from '../Contexts/LoggedInUserContext';
 
-const ProblemList = (props) => {
+const ProblemList = () => {
 
-    const [notes, setNotes] = React.useState('')
+    const [user] = React.useContext(UserContext);
+
+    const initialFilters = {
+        topics:[],
+        statement:'',
+        difficulty:'',
+        status:''
+    }
+
     const [problems, setProblems] = React.useState({
         all:[],
         display:[]
     });
     const [topics, setTopics] = React.useState([]);
-    const [selectedTopic, setSelectedTopic] = React.useState('');
-
-    function flagProblem(e){
-        let flagIcon = e.currentTarget.children[0];
-        if(flagIcon.classList.contains("bi-flag")){
-            flagIcon.classList.remove("bi-flag");
-            flagIcon.classList.add("bi-flag-fill");
-        }
-        else{
-            flagIcon.classList.remove("bi-flag-fill");
-            flagIcon.classList.add("bi-flag");
-        }
-    }
+    const [showFilters, setShowFilters] = React.useState(false);
+    const [filter, setFilter]  = React.useState({...initialFilters});
 
     function selectTopic(e, topic){
-        let selectedTopicBtn = document.getElementsByClassName("topic-filter-active")[0];
-        if(selectedTopicBtn) 
-            selectedTopicBtn.classList.remove("topic-filter-active");
-        if(selectedTopicBtn !== e.currentTarget)
-            e.currentTarget.classList.add("topic-filter-active");
-
-        if(selectedTopic === topic)
-            setSelectedTopic('');
-        else
-            setSelectedTopic(topic);
+        e.currentTarget.classList.toggle("topic-filter-active");
+        if( e.currentTarget.classList.contains("topic-filter-active"))
+            setFilter({...filter, topics:[...filter.topics, topic]})
+        else{
+            let topics = filter.topics;
+            topics.splice(topics.indexOf(topic),1);
+            setFilter({...filter, topics})  
+        }
     }
 
-    function filterByTopic(){
-        if(selectedTopic === ''){
-            setProblems({...problems, display:problems.all});
+    function toggleFilterButtons(e, filterName){
+        if(e.currentTarget.classList.contains('active')){
+            e.currentTarget.classList.remove('active');
+            setFilter({...filter, [filterName]:''})
             return;
         }
-        let filteredProblems = problems.all.filter(problem => problem.topic === selectedTopic);
-        setProblems({...problems, display:filteredProblems});
+        let activeBtn = document.querySelector(`#${filterName}FilterOptions button.active`);
+        if(activeBtn) activeBtn.classList.remove('active');
+        e.currentTarget.classList.add('active');
+        setFilter({...filter, [filterName]:e.currentTarget.value});
+    }
+
+    function applyFilters(){
+        let filteredList = [...problems.all];
+
+        // filter by selected topics
+        if(filter.topics.length > 0){
+            filteredList = filteredList.filter(problem => {
+                for(let item of problem.Topics){
+                    if(filter.topics.includes(item.topic)){
+                        return true;
+                    }
+                }
+                return false;
+            })
+        }
+
+        // filter by searched statement
+        if(filter.statement)
+            filteredList = filteredList.filter(problem => problem.statement.toLowerCase().includes(filter.statement.toLowerCase()))
+
+        // filter by selected difficulty/difficulty
+        if(filter.difficulty)
+            filteredList = filteredList.filter(problem => problem.difficulty === filter.difficulty)
+
+        // filter by selected status
+        if(filter.status)
+            filteredList = filteredList.filter(problem => problem.status === filter.status)
+
+        setProblems({...problems, display:[...filteredList]})
+    }
+
+    function resetFilters(){
+        document.querySelector('#difficultyFilterOptions button.active')?.classList.remove('active');
+        document.querySelector('#statusFilterOptions button.active')?.classList.remove('active');
+        Array.from(document.querySelectorAll('.topic-filter-active')).forEach(activeTopic => activeTopic.classList.remove('topic-filter-active'));
+        setFilter(initialFilters);
     }
 
     React.useEffect(()=>{
-        setProblems({all:props.problemArray, display:props.problemArray});
-    },[props.problemArray]);
+        service.getProblemsByUserId(user.userId)
+        .then(response => setProblems({all:response.body, display:response.body}))
+    },[])
 
     React.useEffect(()=>{
         let uniqueTopics = {};
         problems.all.forEach(problem => {
-            if(!uniqueTopics[problem.topic]) uniqueTopics[problem.topic]++;
-            setTopics(Object.keys(uniqueTopics));
+            problem.Topics.forEach(item=>{
+                if(!uniqueTopics[item.topic]) uniqueTopics[item.topic]++;
+                setTopics(Object.keys(uniqueTopics));
+            })
         })
     },[problems.all])
 
     React.useEffect(()=>{
-        filterByTopic();
-    },[selectedTopic]);
+        applyFilters();
+    },[filter]);
+
+    React.useEffect(()=>{
+        console.log(problems.all)
+    },[problems])
     
     return(
-        <div className='w-100'>
-            <div id="topic-filter-section" className='mb-3'>
+        <div className='contentArea' id="problemList">
+            <div className='d-flex justify-content-between'>
+                <div id='problemListInfo' className='mb-3'>
+                    <div>Overview:</div>
+                    <div className='infoBox black'><span>Total: </span><span>{problems.all.length}</span></div>
+                    <div> | </div>
+                    <div className='infoBox green'><span>Easy: </span><span>{problems.all.filter(problem => problem.difficulty==="Easy").length}</span></div>
+                    <div className='infoBox orange'><span>Medium: </span><span>{problems.all.filter(problem => problem.difficulty==="Medium").length}</span></div>
+                    <div className='infoBox red'><span>Hard: </span><span>{problems.all.filter(problem => problem.difficulty==="Hard").length}</span></div>
+                    <div> | </div>
+                    <div className='infoBox green'><span>Solved: </span><span>{problems.all.filter(problem => problem.status==="Solved").length}</span></div>
+                    <div className='infoBox orange'><span>Revise: </span><span>{problems.all.filter(problem => problem.status==="Revise").length}</span></div>
+                    <div className='infoBox red'><span>Unsolved: </span><span>{problems.all.filter(problem => problem.status==="Unsolved").length}</span></div>
+                </div>
+                <div id='filterToggle' className='mb-2'>
                 {
-                    topics.map(topic =>{
-                        return(
-                            <div className="topic-filter" onClick={(e)=>selectTopic(e, topic)}>{topic}</div>
-                        )
-                    })
+                    showFilters ?
+                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}>Hide Filters <ChevronUp /></span>
+                    :
+                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}>Show Filters <ChevronDown /></span>
                 }
             </div>
-            <table className='table table-sm align-middle bg-white text-center'>
-                <thead>
-                    <tr className='table-dark'>
-                        <th>#</th>
-                        <th>Topic</th>
-                        <th className='w-50'>Statement</th>
-                        <th>Level</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {problems.display.map((problem,index)=>{
-                    let rowStyle = problem.status === "Solved"?"table-success":problem.status === "Unsolved"?"table-danger":"table-warning";
-                    return(
-                        <tr className={rowStyle}>
-                            <td>{index+1}</td>
-                            <td>{problem.topic}</td>
-                            <td className='w-50'><a href={problem.link} target="_blank" rel="noreferrer">{problem.statement}</a></td>
-                            <td>{problem.level}</td>
-                            <td>{problem.status}</td>
-                            <td>
-                                <div className='btn-group'>
-                                <button className='btn btn-dark' title="Flag" onClick={(e)=>flagProblem(e)}><i class="bi bi-flag"></i></button>
-                                <button className="btn btn-dark" title="View Notes" disabled={problem.notes?false:true} onClick={()=>setNotes(problem.notes)} data-bs-toggle="modal" data-bs-target="#notes-modal"><i class="bi bi-eye-fill"></i></button>
-                                <button className="btn btn-dark" title="View Solution" disabled={problem.solution?false:true}><i class="bi bi-code-slash"></i></button>
-                                <button className='btn btn-dark' title="Edit"><i class="bi bi-pencil-fill"></i></button>
-                                <button className='btn btn-danger' title="Delete"><i class="bi bi-trash-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                    )
-                })}
-                </tbody>
-            </table>
-            <NotesPopup content={notes}/>
+            </div>
+            {
+                !showFilters &&
+                <div id='filterInfo' className='mb-2'>
+                    <span><b>Topics:</b> {filter.topics.length > 3 ? filter.topics.slice(0,3).join(", ")+'...':filter.topics.length > 0 ? filter.topics.join(", ") :'All'}</span>
+                    <span className='ms-3'><b>Difficulty:</b> {filter.difficulty || 'All'}</span>
+                    <span className='ms-3'><b>Status:</b> {filter.status || 'All'}</span>
+                    <span className='ms-3'><b>Statement:</b> {filter.statement || 'All'}</span>
+                </div> 
+            }
+            
+            <div id="filterArea" className={'mb-3'+(!showFilters ? ' filterAreaHidden':'')}>
+                <div id="topic-filter-section" className='mb-3'>
+                    {
+                        topics.map(topic =>{
+                            return(
+                                <div className="topic-filter" key={topic} onClick={(e)=>selectTopic(e, topic)}>{topic}</div>
+                            )
+                        })
+                    }
+                </div>
+                <div className='d-flex align-items-center mb-3'>
+                    <Search size={20}/>
+                    <input id="search-problem-input" type="text" className='form-control' value={filter.statement} placeholder='Search Problem Statement' onChange={(e)=>setFilter({...filter,statement:e.target.value})}/>
+                </div>
+                <div className='d-flex'>
+                    <div className='d-flex align-items-center difficultyFilter'>
+                        <label htmlFor="">Difficulty:</label>
+                        <div className='btn-group btn-group-toggle ms-2' id='difficultyFilterOptions'>
+                            <button className='btn' id='difficultyFilterOptionEasy' onClick={(e)=>toggleFilterButtons(e,'difficulty')} value="Easy">Easy</button>
+                            <button className='btn' id='difficultyFilterOptionMedium' onClick={(e)=>toggleFilterButtons(e,'difficulty')} value="Medium">Medium</button>
+                            <button className='btn' id='difficultyFilterOptionHard' onClick={(e)=>toggleFilterButtons(e,'difficulty')} value="Hard">Hard</button>
+                        </div>
+                    </div>
+                    <div className='d-flex align-items-center ms-5 statusFilter'>
+                        <label htmlFor="">Status:</label>
+                        <div className='btn-group btn-group-toggle ms-2' id='statusFilterOptions'>
+                            <button className='btn' id='statusFilterOptionSolved' onClick={(e)=>toggleFilterButtons(e,'status')} value="Solved">Solved</button>
+                            <button className='btn' id='statusFilterOptionRevise' onClick={(e)=>toggleFilterButtons(e,'status')} value="Revise">Revise</button>
+                            <button className='btn' id='statusFilterOptionUnsolved' onClick={(e)=>toggleFilterButtons(e,'status')} value="Unsolved">Unsolved</button>
+                        </div>
+                    </div>
+                    <button className='btn btn-danger' id='resetFilterBtn' onClick={resetFilters}>Reset Filters</button>
+                </div>
+            </div>
+            <ProblemTable problems={problems.display}/>
         </div>
     )
 }

@@ -1,9 +1,12 @@
 import * as React from 'react';
-// import * as auth from '../Service/auth';
+import * as service from '../Service/service';
 import * as helper from '../Service/helper';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
 
 const RegisterForm = (props) => {
+
+    const navigate = useNavigate();
 
     const initialState = {
         name:'',
@@ -23,14 +26,29 @@ const RegisterForm = (props) => {
             helper.showError("Passwords do not match. Kindly try again!");
             return;
         }
-        // auth.register(formData.email, formData.password);
+        service.register({
+            name:formData.name, 
+            email:formData.email, 
+            password:formData.password
+        })
+        .then(response => {
+            if(response.success){
+                navigate('/');
+                alert(response.body.message);
+            }
+            else
+                alert(response.body.message);
+        })
+        .catch(error => {
+            alert(error);
+        })
     }
 
     return(
         <div id='register-wrapper'>
             <form action="" id="register-form">
                 <label htmlFor="" className="form-label">Name</label>
-                <input type="email" className="form-control mb-3 name-input" value={formData.name} onChange={(e)=>changeHandler('name',e.target.value)}/>
+                <input type="text" className="form-control mb-3 name-input" value={formData.name} onChange={(e)=>changeHandler('name',e.target.value)}/>
                 <label htmlFor="" className="form-label">Email</label>
                 <input type="email" className="form-control mb-3 email-input" value={formData.email} onChange={(e)=>changeHandler('email',e.target.value)}/>
                 <label htmlFor="" className="form-label password-label">
