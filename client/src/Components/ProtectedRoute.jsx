@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import UserContext from '../Contexts/LoggedInUserContext';
+import { UserContext, ProblemContext } from './shared/context';
 import SideBar from './SideBar';
 import Header from './Header';
 import Loader from './Loader';
@@ -8,6 +8,10 @@ import Loader from './Loader';
 const ProtectedRoute = () => {
 
     const [user] = React.useContext(UserContext);
+    const [problems, setProblems] = React.useState({
+        all:[],
+        display:[]
+    });
 
     return(
         <>
@@ -17,7 +21,9 @@ const ProtectedRoute = () => {
                 <div id="mainContent">
                     <React.Suspense fallback={<Loader />}>
                         <Header />
-                        <Outlet />
+                        <ProblemContext.Provider value={[problems, setProblems]}>
+                            <Outlet />
+                        </ProblemContext.Provider>
                     </React.Suspense>
                 </div>
             </div> 

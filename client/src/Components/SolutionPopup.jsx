@@ -1,15 +1,40 @@
 import * as React from 'react';
+import * as helper from '../Service/helper';
+import TextEditor from './InputComponents/TextEditor';
+import CodeEditor from './InputComponents/CodeEditor';
+import ProblemEditor from './InputComponents/ProblemEditor';
+import { PencilSquare, XSquare } from 'react-bootstrap-icons';
 
 const SolutionPopup = (props) => {
     const [content, setContent] = React.useState('');
-    const [selectedNote, setSelectedNote] = React.useState(0);
-    const [selectedSolution, setSelectedSolution] = React.useState(0);
+    const [problem, setProblem] = React.useState({});
+    const [selectedNote] = React.useState(0);
+    const [selectedSolution] = React.useState(0);
+    const [editMode, setEditMode] = React.useState(false);
 
     React.useEffect(()=>{
-        setContent(props.data.Clicked);
-        setSelectedNote(0);
-        setSelectedSolution(0);
-    },[props.data.Clicked])
+        setContent(props.data.clicked);
+        setProblem(props.data.problem);
+    },[props.data])
+
+    React.useEffect(()=>setEditMode(false),[content])
+
+    React.useEffect(() => {
+        const modal = document.getElementById('solution-modal');
+        if (!modal) return;
+
+        const handleHidden = () => {
+            console.log("Hidden")
+            setContent('');
+            setProblem({});
+        };
+
+        modal.addEventListener('hidden.bs.modal', handleHidden);
+
+        return () => {
+            modal.removeEventListener('hidden.bs.modal', handleHidden);
+        };
+    }, []);
 
     return(
         <div className='modal' id="solution-modal">
@@ -17,17 +42,48 @@ const SolutionPopup = (props) => {
                 <div className='modal-content'>
                     <div className='modal-body'>
                         <div className='modal-side-nav'>
-                            <div className={content=="Notes"?"modal-side-nav-active":""} onClick={()=>setContent("Notes")}>Notes</div>
-                            <div className={content=="Solutions"?"modal-side-nav-active":""} onClick={()=>setContent("Solutions")}>Solutions</div>
+                            <div className={content === "Problem" ? "modal-side-nav-active" : ""} onClick={() => setContent("Problem")}>Problem</div>
+                            <div className={content === "Notes" ? "modal-side-nav-active" : ""} onClick={() => setContent("Notes")}>Notes</div>
+                            <div className={content === "Solutions" ? "modal-side-nav-active" : ""} onClick={() => setContent("Solutions")}>Solution</div>
                         </div>
                         <div className='modal-main-area'>
-                            <div className='modal-head-content'>{props.data[content]?.map((item,index) => <button className={'modal-head-btn'+((content=="Notes" && selectedNote==index) || (content=="Solutions" && selectedSolution==index)?" modal-head-btn-active":"")} key={item.id}>{item.title.length > 13 ? item.title.substring(0,10)+'...' : item.title}</button>)}</div>
                             <div className='modal-main-area-content'>
-                                <p className='modal-title'>{content=="Notes"?props.data?.[content]?.[selectedNote]?.title:props.data?.[content]?.[selectedSolution]?.title}</p>
-                                <p className='modal-date'>{content=="Notes"?new Date(props.data?.[content]?.[selectedNote]?.updatedAt).toLocaleString():new Date(props.data?.[content]?.[selectedSolution]?.updatedAt).toLocaleString()}</p>
+                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                    <span className='modal-date'>
+                                        {content === 'Problem' && Object.keys(problem).length > 0 && 
+                                        <>
+                                            <small>Created: {helper.getFormatedLocaleDateTime(problem?.createdAt)}</small>
+                                            &nbsp;|&nbsp;
+                                            <small>Last Updated: {helper.getFormatedLocaleDateTime(problem?.updatedAt)}</small>
+                                        </>
+                                        }
+                                        {content === 'Notes' && problem?.Notes?.length > 0 &&
+                                        <>
+                                            <small>Created: {helper.getFormatedLocaleDateTime(problem?.Notes?.[selectedNote]?.createdAt)}</small>
+                                            &nbsp;|&nbsp;
+                                            <small>Last Updated: {helper.getFormatedLocaleDateTime(problem?.Notes?.[selectedNote]?.updatedAt)}</small>
+                                        </>
+                                        }
+                                        {content === 'Solutions' && problem?.Solutions?.length > 0 &&
+                                        <>
+                                            <small>Created: {helper.getFormatedLocaleDateTime(problem?.Solutions?.[selectedSolution]?.createdAt)}</small>
+                                            &nbsp;|&nbsp;
+                                            <small>Last Updated: {helper.getFormatedLocaleDateTime(problem?.Solutions?.[selectedSolution]?.updatedAt)}</small>
+                                        </>
+                                        }
+                                    </span>
+                                    {!editMode && <PencilSquare onClick={()=>setEditMode(true)} color="rgb(0, 110, 255)" size={20} className='iconbtn' title='Edit Mode'/>}
+                                    {editMode && 
+                                        <div>
+                                            <small className='text-danger'>You are in edit-mode. Save your changes before proceeding!</small>
+                                            <XSquare onClick={()=>setEditMode(false)} color="red" size={20} className='iconbtn ms-2' title='Cancel Edit'/>
+                                        </div>
+                                    }
+                                </div>
                                 <div className='modal-info'>
-                                    {content=="Notes" && <p className='modal-note'>{props.data?.[content]?.[selectedNote]?.content}</p>}
-                                    {content=="Solutions" && <code className='modal-code'>{props.data?.[content]?.[selectedSolution]?.code}</code>}
+                                    {content === 'Problem' && <ProblemEditor problem={{...problem}} disabled={!editMode}/>}
+                                    {content === 'Notes' && <TextEditor problemId={problem.id} notes={[problem?.Notes?.[selectedNote]]} disabled={!editMode} showUpdateButton={true}/>}
+                                    {content === 'Solutions' && <CodeEditor problemId={problem.id} solutions={[problem?.Solutions?.[selectedSolution]]} disabled={!editMode}/>}
                                 </div>
                             </div>
                         </div>

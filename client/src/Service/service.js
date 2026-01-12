@@ -62,32 +62,37 @@ async function addProblemByUserId(userId, payload){
 }
 
 async function updateProblemById(problemId, payload){
-    return postData(`${domain}/problem/update/${problemId}`,payload)
+    return updateData(`${domain}/problem/update/${problemId}`,payload)
 }
 
 async function flagProblemById(problemId, payload){
-    return postData(`${domain}/problem/flag/${problemId}`,payload)
+    return updateData(`${domain}/problem/flag/${problemId}`,payload)
 }
 
 async function deleteProblemById(problemId){
     return postData(`${domain}/problem/delete/${problemId}`)
 }
 
-async function addTopicsByProblemId(problemId, topicArray){
-    return postData(`${domain}/topic/add/${problemId}`,{topics:topicArray});
-}
-
 async function addNotesByProblemId(problemId, noteArray){
     return postData(`${domain}/note/add/${problemId}`,{notes:noteArray});
+}
+
+async function updateNotesById(noteId, payload){
+    return updateData(`${domain}/note/update/${noteId}`,payload);
 }
 
 async function addSolutionsByProblemId(problemId, solutionArray){
     return postData(`${domain}/solution/add/${problemId}`,{solutions:solutionArray});
 }
 
-async function getLeetcodeProblemSet(){
-    return postData("https://leetcode.com/graphql",`{"query":"\n    query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {\n  problemsetQuestionList: questionList(\n    categorySlug: $categorySlug\n    limit: $limit\n    skip: $skip\n    filters: $filters\n  ) {\n    total: totalNum\n    questions: data {\n      acRate\n      difficulty\n      freqBar\n      frontendQuestionId: questionFrontendId\n      isFavor\n      paidOnly: isPaidOnly\n      status\n      title\n      titleSlug\n      topicTags {\n        name\n        id\n        slug\n      }\n      hasSolution\n      hasVideoSolution\n    }\n  }\n}\n    ","variables":{"categorySlug":"all-code-essentials","skip":0,"limit":50,"filters":{}},"operationName":"problemsetQuestionList"}`)
+async function updateSolutionById(solutionId, payload){
+    return updateData(`${domain}/solution/update/${solutionId}`,payload);
 }
+
+async function getLeetcodeProblemSet(){
+    return getData(`${domain}/problem/leetcode`)
+}
+
 
 export {
     login,
@@ -98,8 +103,9 @@ export {
     updateProblemById,
     flagProblemById,
     deleteProblemById,
-    addTopicsByProblemId,
     addNotesByProblemId,
+    updateNotesById,
     addSolutionsByProblemId,
+    updateSolutionById,
     getLeetcodeProblemSet
 }

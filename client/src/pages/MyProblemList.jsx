@@ -1,24 +1,23 @@
 import * as React from 'react';
 import * as service from '../Service/service';
+import * as helper from '../Service/helper';
 import ProblemTable from '../Components/ProblemTable';
 import { ChevronDown, ChevronUp, Search } from 'react-bootstrap-icons';
-import UserContext from '../Contexts/LoggedInUserContext';
+import { UserContext, ProblemContext } from '../Components/shared/context';
 
-const ProblemList = () => {
+const MyProblemList= () => {
 
-    const [user] = React.useContext(UserContext);
+    const [user, setUser] = React.useContext(UserContext);
 
     const initialFilters = {
         topics:[],
         statement:'',
         difficulty:'',
-        status:''
+        status:'',
+        flagged:''
     }
 
-    const [problems, setProblems] = React.useState({
-        all:[],
-        display:[]
-    });
+    const [problems, setProblems] = React.useContext(ProblemContext);
     const [topics, setTopics] = React.useState([]);
     const [showFilters, setShowFilters] = React.useState(false);
     const [filter, setFilter]  = React.useState({...initialFilters});
@@ -65,7 +64,7 @@ const ProblemList = () => {
         if(filter.statement)
             filteredList = filteredList.filter(problem => problem.statement.toLowerCase().includes(filter.statement.toLowerCase()))
 
-        // filter by selected difficulty/difficulty
+        // filter by selected difficulty
         if(filter.difficulty)
             filteredList = filteredList.filter(problem => problem.difficulty === filter.difficulty)
 
@@ -73,26 +72,43 @@ const ProblemList = () => {
         if(filter.status)
             filteredList = filteredList.filter(problem => problem.status === filter.status)
 
+        if(filter.flagged)
+            filteredList = filteredList.filter(problem => problem.flagged)
+
         setProblems({...problems, display:[...filteredList]})
     }
 
     function resetFilters(){
         document.querySelector('#difficultyFilterOptions button.active')?.classList.remove('active');
         document.querySelector('#statusFilterOptions button.active')?.classList.remove('active');
+        document.querySelector('#flagFilter.active')?.classList.remove('active');
         Array.from(document.querySelectorAll('.topic-filter-active')).forEach(activeTopic => activeTopic.classList.remove('topic-filter-active'));
         setFilter(initialFilters);
     }
 
     React.useEffect(()=>{
         service.getProblemsByUserId(user.userId)
-        .then(response => setProblems({all:response.body, display:response.body}))
+        .then(response => {
+            if(response.success) setProblems({all:response.body, display:response.body})
+            else{
+                helper.showError('Error fetching problems. Please try again later.');
+                setUser(null);
+                console.error(response.message)
+            }
+            console.log(response);
+        })
+        .catch(error => {
+            helper.showError('Error fetching problems. Please try again later.');
+            setUser(null);
+            console.error(error);
+        })
     },[])
 
     React.useEffect(()=>{
         let uniqueTopics = {};
         problems.all.forEach(problem => {
-            problem.Topics.forEach(item=>{
-                if(!uniqueTopics[item.topic]) uniqueTopics[item.topic]++;
+            problem.topics.forEach(topic=>{
+                if(!uniqueTopics[topic]) uniqueTopics[topic]++;
                 setTopics(Object.keys(uniqueTopics));
             })
         })
@@ -100,33 +116,29 @@ const ProblemList = () => {
 
     React.useEffect(()=>{
         applyFilters();
-    },[filter]);
-
-    React.useEffect(()=>{
-        console.log(problems.all)
-    },[problems])
+    },[filter, problems.all]);
     
     return(
-        <div className='contentArea' id="problemList">
+        <div className='contentArea' id="myProblemList">
             <div className='d-flex justify-content-between'>
-                <div id='problemListInfo' className='mb-3'>
+                <div id='myProblemListInfo' className='mb-3'>
                     <div>Overview:</div>
                     <div className='infoBox black'><span>Total: </span><span>{problems.all.length}</span></div>
                     <div> | </div>
-                    <div className='infoBox green'><span>Easy: </span><span>{problems.all.filter(problem => problem.difficulty==="Easy").length}</span></div>
-                    <div className='infoBox orange'><span>Medium: </span><span>{problems.all.filter(problem => problem.difficulty==="Medium").length}</span></div>
-                    <div className='infoBox red'><span>Hard: </span><span>{problems.all.filter(problem => problem.difficulty==="Hard").length}</span></div>
+                    <div className='infoBox green'><span>Easy: </span><span>{problems?.all?.filter(problem => problem.difficulty==="Easy").length}</span></div>
+                    <div className='infoBox orange'><span>Medium: </span><span>{problems?.all?.filter(problem => problem.difficulty==="Medium").length}</span></div>
+                    <div className='infoBox red'><span>Hard: </span><span>{problems?.all?.filter(problem => problem.difficulty==="Hard").length}</span></div>
                     <div> | </div>
-                    <div className='infoBox green'><span>Solved: </span><span>{problems.all.filter(problem => problem.status==="Solved").length}</span></div>
-                    <div className='infoBox orange'><span>Revise: </span><span>{problems.all.filter(problem => problem.status==="Revise").length}</span></div>
-                    <div className='infoBox red'><span>Unsolved: </span><span>{problems.all.filter(problem => problem.status==="Unsolved").length}</span></div>
+                    <div className='infoBox green'><span>Solved: </span><span>{problems?.all?.filter(problem => problem.status==="Solved").length}</span></div>
+                    <div className='infoBox orange'><span>Revise: </span><span>{problems?.all?.filter(problem => problem.status==="Revise").length}</span></div>
+                    <div className='infoBox red'><span>Unsolved: </span><span>{problems?.all?.filter(problem => problem.status==="Unsolved").length}</span></div>
                 </div>
                 <div id='filterToggle' className='mb-2'>
                 {
                     showFilters ?
-                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}>Hide Filters <ChevronUp /></span>
+                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}><span>Hide Filters</span><ChevronUp /></span>
                     :
-                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}>Show Filters <ChevronDown /></span>
+                    <span className='filterToggleBtn' onClick={()=>setShowFilters(!showFilters)}><span>Show Filters</span><ChevronDown /></span>
                 }
             </div>
             </div>
@@ -137,6 +149,7 @@ const ProblemList = () => {
                     <span className='ms-3'><b>Difficulty:</b> {filter.difficulty || 'All'}</span>
                     <span className='ms-3'><b>Status:</b> {filter.status || 'All'}</span>
                     <span className='ms-3'><b>Statement:</b> {filter.statement || 'All'}</span>
+                    <span className='ms-3'><b>Flagged:</b> {filter.flagged?'True':'False'}</span>
                 </div> 
             }
             
@@ -171,12 +184,15 @@ const ProblemList = () => {
                             <button className='btn' id='statusFilterOptionUnsolved' onClick={(e)=>toggleFilterButtons(e,'status')} value="Unsolved">Unsolved</button>
                         </div>
                     </div>
+                    <div className="ms-5">
+                        <button className='btn' id='flagFilter' onClick={(e)=>toggleFilterButtons(e,'flagged')} value={!filter.flagged}>Flagged</button>
+                    </div>
                     <button className='btn btn-danger' id='resetFilterBtn' onClick={resetFilters}>Reset Filters</button>
                 </div>
             </div>
-            <ProblemTable problems={problems.display}/>
+            <ProblemTable />
         </div>
     )
 }
 
-export default ProblemList;
+export default MyProblemList;

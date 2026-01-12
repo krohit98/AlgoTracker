@@ -2,7 +2,7 @@
   padding:0;
   margin:0;
   box-sizing: border-box;
-  font-size:14px;
+  font-size:16px;
   /* color:rgb(50,50,50); */
 }
 
@@ -171,7 +171,6 @@ code{
   z-index:1000;
 }
 #header span{
-  width:135px;
   display:flex;
   align-items: end;
   justify-content: space-between;
@@ -185,6 +184,22 @@ code{
 }
 #header #userInfo{
   color:rgb(100,100,100);
+}
+#header #userInfo .userEmail{
+  margin-left:10px;
+}
+#header .userSection{
+  display:flex;
+  align-items: center;
+}
+#logoutBtn{
+  color: rgb(255, 63, 63);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  margin-left: 20px;
 }
 .contentArea{
   flex:1;
@@ -262,6 +277,7 @@ code{
   left:0;
   justify-content: center;
   align-items: center;
+  z-index:9999;
 }
 
 #ack-popup{
@@ -291,7 +307,7 @@ code{
   overflow:hidden;
 }
 #sideBar:hover{
-  width:140px;
+  width: 200px;
 }
 #sideBar > div{
   text-align:center;
@@ -303,34 +319,6 @@ code{
 #sideBar:hover > div > div > span{
   display:block;
   text-wrap:nowrap;
-}
-
-#logoutBtn{
-  color: rgb(255, 63, 63);
-  cursor: pointer;
-  width: 80%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom:30px;
-  border-radius: 10px;
-  transition:background-color 0.5s;
-}
-#sideBar:hover #logoutBtn{
-  padding: 10px;
-  border: 1px solid rgb(255, 63, 63);
-}
-#logoutBtn span{
-  display:none;
-  text-wrap: nowrap;
-  margin-left:5px;
-}
-#sideBar:hover #logoutBtn span{
-  display:block;
-}
-#logoutBtn:hover{
-  background:rgb(255, 63, 63);
-  color:white;
 }
 #sideNavWrapper{
   flex:1;
@@ -366,8 +354,10 @@ code{
   color:rgb(0, 110, 255);
   display: flex;
   justify-content: space-between;
-  width: 105px;
   align-items: center;
+}
+.filterToggleBtn > span{
+  margin-right:10px;
 }
 #hideFilterToggleBtnWrapper{
   position:absolute;
@@ -380,7 +370,7 @@ code{
   border-radius:10px;
 }
 #filterArea *{
-  font-size:small;
+  font-size:14px;
 }
 .filterAreaHidden{
   display:none;
@@ -446,6 +436,19 @@ code{
   border-color:red;
   color:white;
 }
+#flagFilter{
+  background:white;
+  border: 1px solid rgb(150, 150, 150);
+}
+#flagFilter:hover{
+  color:rgb(0, 110, 255);
+  border-color:rgb(0, 110, 255);
+}
+#flagFilter.active{
+  background:rgb(0, 110, 255);
+  color:white;
+  border-color:rgb(0, 110, 255);
+}
 #resetFilterBtn{
   margin-left:auto;
 }
@@ -455,53 +458,56 @@ code{
 #filterInfo b {
   color:rgb(100,100,100);
 }
-#problemListInfo{
+#myProblemListInfo{
   display:flex;
-  width:100%;
+  align-items: center;
 }
-#problemListInfo div{
+#myProblemListInfo div{
   margin: 0 5px;
   color:rgb(150,150,150);
 }
-#problemListInfo div:first-of-type{
+#myProblemListInfo div:first-of-type{
   margin-left:0;
 }
-#problemListInfo .infoBox{
+#myProblemListInfo .infoBox{
   border:1px solid;
   padding:0 10px;
-  border-radius: 10px;
+  border-radius: 5px;
   display:flex;
   align-items: center;
   justify-content: space-between;
 }
-#problemListInfo .infoBox.black{
+#myProblemListInfo .infoBox.black{
   color:black;
 }
-#problemListInfo .infoBox.green{
+#myProblemListInfo .infoBox.green{
   color:green;
 }
-#problemListInfo .infoBox.orange{
+#myProblemListInfo .infoBox.orange{
   color:orange;
 }
-#problemListInfo .infoBox.red{
+#myProblemListInfo .infoBox.red{
   color:red;
 }
-#problemListInfo .infoBox span{
+#myProblemListInfo .infoBox span{
   font-size:small;
   font-weight:bold;
   margin:2px;
 }
-#problemTableWrapper{
+#dataTableWrapper{
   flex:1;
   overflow:auto;
 }
-#problemTable thead{
+.dataTable thead{
   position:sticky;
   top:0;
   background-color: rgb(50,50,50);
 }
-#problemTable thead th{
+.dataTable thead th{
   color:white;
+}
+tr.problem{
+  height:60px;
 }
 .checkboxDropdown{
   position:relative;
@@ -617,54 +623,65 @@ code{
   margin-left:auto;
   cursor:pointer;
 }
-#problemTable .Easy, #problemTable .Solved{
+.dataTable .Easy, .dataTable .Solved{
   color:green;
   font-weight:bold;
 }
-#problemTable .Medium, #problemTable .Revise{
+.dataTable .Medium, .dataTable .Revise{
   color:orange;
   font-weight:bold;
 }
-#problemTable .Hard, #problemTable .Unsolved{
+.dataTable .Hard, .dataTable .Unsolved{
   color:red;
   font-weight:bold;
 }
-#problemTable .problem-item{
+.dataTable .notProvided{
+  color:rgb(150,150,150);
+  font-style:italic;
+}
+.dataTable .problem-item{
   cursor:pointer;
   transition:background 0.3s;
 }
-#problemTable .problem-item:hover{
+.dataTable .problem-item:hover{
   background:rgb(220, 230, 253);
 }
-#problemTable .topicTab{
-  font-size:x-small;
+.topicTab{
+  font-size:small;
   width:fit-content;
-  padding:2px 5px;
+  padding:5px 10px;
   border-radius:20px;
   margin:5px;
   background:rgb(240,240,240);
+  display:flex;
+  align-items: center;
+  justify-content: center;
 }
-#problemTable .topicTab:first-of-type{
+.dataTable .topicTab{
+  font-size:12px;
+  padding:3px 7px;
+}
+.dataTable .topicTab:first-of-type{
   margin-left:0;
 }
-#problemTable .platformIconWrapper{
+.dataTable .platformIconWrapper{
   width:50px;
 }
-#problemTable .platformIcon{
+.dataTable .platformIcon{
   width:30px;
 }
-#problemTable .problemStatement{
+.dataTable .problemStatement{
   color:rgb(0, 110, 255);
   text-align: left;
   display:flex;
   align-items: center;
   padding: 0 5px;
 }
-#problemTable .problemTopics{
+.dataTable .problemTopics{
   display:flex;
   padding: 0 5px;
 }
-#problemList{
+#myProblemList{
   display:flex;
   flex-direction:column;
   height:calc(100vh - 200px);
@@ -695,7 +712,7 @@ code{
 .modal-body{
   display:flex;
   padding:0;
-  height:70vh;
+  height:86vh;
 }
 .modal-side-nav{
   width:130px;
@@ -703,9 +720,12 @@ code{
 }
 .modal-side-nav div{
   color:white;
-  text-align: center;
   padding:10px 20px;
   cursor:pointer;
+  height:70px;
+  display:flex;
+  align-items: center;
+  justify-content: center;
 }
 .modal-side-nav-active{
   background:rgba(255,255,255,0.2);
@@ -743,10 +763,13 @@ code{
   font-size:15px;
 }
 .modal-info{
-  max-height:50vh;
+  max-height:75vh;
   overflow-x:hidden;
-  overflow-y:auto;
   padding-right:5px;
+  overflow-y:auto;
+}
+.modal-content{
+  overflow:hidden;
 }
 #popup-close-msg{
   position:absolute;
@@ -757,18 +780,50 @@ code{
 .editor-row{
   height:calc(100vh - 350px);
 }
+.problemInfo{
+  border-radius:5px;
+  overflow:hidden;
+  flex:1;
+  height:calc(100vh - 150px);
+  padding:0;
+}
+.problemEditorWrapper{
+  border-radius:5px;
+  overflow:hidden;
+  padding:10px;
+  margin-left:10px;
+  flex:1;
+  /* border:1px solid rgb(200, 200, 200); */
+  height:calc(100vh - 150px);
+}
+.editorLabel{
+  font-size:small;
+  font-weight:bold;
+  background:rgb(240,240,240);
+  margin-bottom:10px;
+  margin-right:10px;
+  cursor:pointer;
+  width:100px;
+  text-align: center;
+  padding:5px;
+  border-radius:5px;
+}
+.activeEditorLabel{
+  color:rgb(0, 110, 255);
+  background: rgba(0, 110, 255, 0.1);
+}
 .codeEditorWrapper{
   overflow:auto;
-  height:calc(100vh - 400px);
+  height:calc(100vh - 210px);
   border:1px solid rgb(150,150,150);
-  border-radius:5px;
+  border-radius:10px;
 }
 .codeEditor{
   border:none !important;
   outline:none;
 }
-.textEditor .ql-editor{
-  height:calc(100vh - 445px);
+/* .textEditor .ql-editor{
+  height:calc(100vh - 255px);
 }
 .ql-container.ql-snow{
   border:1px solid rgb(150,150,150) !important;
@@ -779,22 +834,108 @@ code{
   border:1px solid rgb(150,150,150) !important;
   border-radius:5px 5px 0 0;
 }
+.textEditor-disabled .ql-editor{
+  height:auto;
+}
+.textEditor-disabled .ql-container.ql-snow{
+  border:none !important;
+} */
 #selectedTopics{
   display:flex;
   flex-wrap:wrap;
   align-items: center;
-
+  max-height:calc(100vh - 595px);
+  overflow:auto;
 }
 #selectedTopics .topicTab{
-    font-size:small;
     font-weight:bold;
-    width:fit-content;
-    padding:2px 10px;
-    border-radius:20px;
-    margin:5px;
-    background:rgb(240,240,240);
     cursor:pointer;
 }
 #selectedTopics .topicTab span{
   margin-left:10px;
+}
+#problemEditorDisabled .topicTab{
+  background:black;
+  color:white;
+}
+#problemEditorDisabled .problemDetails{
+  width:100%;
+  height:calc(100vh - 350px);
+  overflow-x:hidden;
+  overflow-y:auto;
+  border-bottom: 1px solid rgb(200,200,200);
+  padding-right:10px;
+  padding-bottom:10px;
+}
+#problemEditorDisabled .topicsWrapper{
+  display:flex;
+  flex-wrap: wrap;
+  position:relative;
+  left:-5px;
+}
+#problemEditorDisabled .descriptionWrapper{
+  padding-right:10px;
+  color:rgb(100,100,100);
+  width:100%;
+}
+#problemEditorDisabled .difficultyWrapper, #problemEditorDisabled .statusWrapper{
+  display:flex;
+  flex-direction: column;
+  align-items:start;
+  justify-content: center;
+  width:fit-content;
+}
+#problemEditorDisabled .difficultyWrapper small, #problemEditorDisabled .statusWrapper small{
+  margin-bottom:2px;
+  font-size:small;
+  color:rgb(100,100,100);
+}
+#problemEditorDisabled .difficultyWrapper span, #problemEditorDisabled .statusWrapper span{
+  padding:5px 10px;
+  border-radius:10px;
+  color:white;
+}
+#problemEditorDisabled .difficultyWrapper span.Easy, #problemEditorDisabled .statusWrapper span.Solved{
+  background-color: green;
+}
+#problemEditorDisabled .difficultyWrapper span.Medium, #problemEditorDisabled .statusWrapper span.Revise{
+  background-color: orange;
+}
+#problemEditorDisabled .difficultyWrapper span.Hard, #problemEditorDisabled .statusWrapper span.Unsolved{
+  background-color: red;
+}
+#problemEditorDisabled .difficultyWrapper span.notProvided, #problemEditorDisabled .statusWrapper span.notProvided{
+  color:rgb(150,150,150);
+  border:1px solid rgb(150,150,150);
+}
+#problemEditorEnabled{
+  padding-left: 0;
+  padding-bottom:10px;
+}
+#problemEditorEnabled #descriptionInput{
+  height:250px;
+}
+#solution-modal .iconbtn{
+  cursor:pointer;
+}
+/* TEXT EDITOR */
+#problemForm #textEditorEnabled .codex-editor{
+  height:calc(100vh - 210px);
+}
+#solution-modal #textEditorEnabled .codex-editor{
+  min-height:calc(100vh - 500px);
+}
+#textEditorEnabled .codex-editor{
+  border: 1px solid rgb(150,150,150);
+  border-radius:10px;
+}
+#textEditorEnabled .codex-editor__redactor, #textEditorDisabled .codex-editor__redactor{
+  padding-bottom:50px !important;
+}
+#textEditorEnabled .ce-block__content, #textEditorEnabled .ce-toolbar__content,
+#textEditorDisabled .ce-block__content{
+  max-width:85% !important;
+}
+#textEditorUpdateButton{
+  margin:20px 0;
 }

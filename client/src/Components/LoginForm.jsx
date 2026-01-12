@@ -3,7 +3,7 @@ import * as service from '../Service/service';
 import * as helper from '../Service/helper';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import UserContext from '../Contexts/LoggedInUserContext';
+import { UserContext } from './shared/context';
 
 const LoginForm = (props) => {
 
@@ -12,8 +12,8 @@ const LoginForm = (props) => {
     const navigate = useNavigate();
 
     const initialState = {
-        email:'',
-        password:''
+        email:'rohit@gmail.com',
+        password:'rohit123'
     }
 
     const [formData, setFormData] = React.useState(initialState)
@@ -40,6 +40,10 @@ const LoginForm = (props) => {
             alert(error);
         })
     }
+
+    React.useEffect(()=>{
+        if(!user) sessionStorage.removeItem("algoTrackerLoggedInUser")
+    },[user])
 
     return(
         <div id='login-wrapper' className='d-flex flex-column justify-content-between'>

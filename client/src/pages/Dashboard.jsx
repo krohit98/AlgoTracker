@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as service from '../Service/service';
 import ProblemForm from './ProblemForm';
-import ProblemList from './ProblemList';
+import MyProblemList from './MyProblemList';
 
 const Dashboard = () => {
 
@@ -33,7 +33,7 @@ const Dashboard = () => {
                 display==="form"?
                 <ProblemForm />
                 :
-                <ProblemList problemArray={appData}/>
+                <MyProblemListproblemArray={appData}/>
             } */}
         </div>
     )

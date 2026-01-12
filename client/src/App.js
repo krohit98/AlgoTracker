@@ -3,7 +3,7 @@ import './App.css';
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import UserContext from './Contexts/LoggedInUserContext';
+import { UserContext } from './Components/shared/context';
 import Loader from './Components/Loader';
 
 const Home = React.lazy(()=>import('./pages/Home'));
@@ -12,7 +12,7 @@ const LoginForm = React.lazy(()=>import('./Components/LoginForm'));
 const RegisterForm = React.lazy(()=>import('./Components/RegisterForm'));
 const Index = React.lazy(()=>import('./pages/Index'));
 const ProtectedRoute = React.lazy(()=>import('./Components/ProtectedRoute'));
-const ProblemList = React.lazy(()=>import('./pages/ProblemList'));
+const MyProblemList= React.lazy(()=>import('./pages/MyProblemList'));
 const ProblemForm = React.lazy(()=>import('./pages/ProblemForm'));
 
 function App() {
@@ -34,8 +34,9 @@ function App() {
                 <Route exact path='/register' element={<RegisterForm />} />
               </Route>
               <Route element={<ProtectedRoute />}>
-                <Route exact path='/problem/list' element={<ProblemList/>} />
+                <Route exact path='/problem/list' element={<MyProblemList/>} />
                 <Route exact path='/problem/add' element={<ProblemForm/>} />
+                <Route exact path='/problem/update/:id' element={<ProblemForm/>} />
                 <Route exact path='/dashboard' element={<Dashboard/>} />
               </Route>
             </Routes> 

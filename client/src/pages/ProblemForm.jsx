@@ -1,158 +1,116 @@
 import * as React from 'react';
 import * as service from '../Service/service';
-import CheckboxDropdown from '../Components/InputComponents/CheckboxDropdown';
-import MultiTextArea from '../Components/InputComponents/MultiTextArea';
-import UserContext from '../Contexts/LoggedInUserContext';
+import * as helper from '../Service/helper';
+import { UserContext } from '../Components/shared/context';
 import CodeEditor from '../Components/InputComponents/CodeEditor';
 import TextEditor from '../Components/InputComponents/TextEditor';
-
-
-const topics = require('../Data/topics.json');
+import DataForm from '../Components/InputComponents/DataForm';
 
 const ProblemForm = () =>{
 
     const [user] = React.useContext(UserContext);
-    const topicToBeAdded = React.useRef();
-
-    const initialFormData = {
-        topics:[],
-        statement:'',
-        link:'',
-        difficulty:'',
-        status:''
-    }
-
-    const [formData, setFormData] = React.useState(initialFormData);
     const [notes, setNotes] = React.useState([]);
     const [solutions, setSolutions] = React.useState([]);
-    const [resetKey, setResetKey] = React.useState(crypto.randomUUID())
+    const [editor, setEditor] = React.useState('code');
 
-    function changeHandler(e, fieldName){
-        let value = e.currentTarget.value;
-        setFormData({...formData, [fieldName]:value});
-    }
-
-    function setTopic(){
-        setFormData({...formData, topics:[...formData.topics, topicToBeAdded.current.value]})
-        topicToBeAdded.current.value = "";
-    }
-
-    function unselectTopic(index){
-        let topicList = [...formData.topics]
-        topicList.splice(index,1);
-        setFormData({...formData, topics:[...topicList]})
-    }
-
-    const addNotes = React.useCallback((notesData)=>{
-        console.log("inside Notes", notesData)
-        let notes = notesData?.map(note => {return {title:note.title, content:note.data}}).filter(note => note.content!=="");
-        setNotes(notes)
-    },[])
-
-    const addSolutions = React.useCallback((solutionsData)=>{
-        console.log("inside Solutions", solutionsData)
-        let solutions = solutionsData?.map(solution => {return {title:solution.title, code:solution.data}}).filter(solution => solution.code!=="");
-        setSolutions(solutions)
-    },[])
 
     function resetForm(){
-        setFormData(initialFormData);
         setNotes([]);
         setSolutions([]);
-        setResetKey(crypto.randomUUID());
     }
 
-    async function submitProblem(){
-        let payload = {
+    async function submitProblem(formData){
+        if(!helper.validateFormData(formData)) return;
+
+        const payload = {
             statement:formData.statement,
             link:formData.link,
             status:formData.status,
-            difficulty:formData.difficulty
+            difficulty:formData.difficulty,
+            topics:formData.topics,
+            description:formData.description
         }
 
-        let addedProblem = await service.addProblemByUserId(user.userId, payload);
+        const addedProblem = await service.addProblemByUserId(user.userId, payload);
         if(addedProblem.success){
-            await service.addTopicsByProblemId(addedProblem.body.id, formData.topics);
             if(notes.length > 0) await service.addNotesByProblemId(addedProblem.body.id, notes);
             if(solutions.length > 0) await service.addSolutionsByProblemId(addedProblem.body.id, solutions);
-            alert('Problem added successfully!')
+            helper.showSuccess('Problem added successfully!')
             resetForm();
         }
+
     }
 
-    React.useEffect(()=>{
-        console.log(formData.topics)
-    },[formData.topics])
-
     return(
-        <form className='container-fluid contentArea'>
-            <div className='row'>
-            <div className='col-12'>
-                    <label className='form-label fieldName' htmlFor="">Problem Link<span className='req'>*</span></label>
-                    <input className='form-control mb-3' type="text" value={formData.link} onChange={(e)=>changeHandler(e, 'link')}/>
+        <div className='contentArea' id='problemForm'>
+            <DataForm>
+            <div className='problemHeader d-flex justify-content-between align-items-center mb-3'>
+                <DataForm.LinkInput />
+                <div className='d-flex gap-2 w-25 ms-3'>
+                    <DataForm.SubmitButton  onSubmit={submitProblem}/>
+                    <DataForm.ResetButton onReset={resetForm}/>
                 </div>
             </div>
-            <div className='row'>
-                <div className='col-6'>
-                    <label className='form-label fieldName' htmlFor="">Problem Statement</label>
-                    <input className='form-control mb-3' type="text" value={formData.statement} onChange={(e)=>changeHandler(e, 'statement')}/>
-                </div>
-                <div className="col">
-                    <label className='form-label fieldName' htmlFor="">Difficulty</label>
-                    <select className='form-control mb-3' value={formData.difficulty} onChange={(e)=>changeHandler(e, 'difficulty')}>
-                        <option value="" hidden selected>Select</option>
-                        <option value="Easy">Easy</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Hard">Hard</option>
-                    </select>
-                </div>
-                <div className="col">
-                    <label className='form-label fieldName' htmlFor="">Status</label>
-                    <select className='form-control mb-3' value={formData.status} onChange={(e)=>changeHandler(e, 'status')}>
-                        <option value="" hidden selected>Select</option>
-                        <option value="Solved">Solved</option>
-                        <option value="Revise">Revise</option>
-                        <option value="Unsolved">Unsolved</option>
-                    </select>
-                </div>
-            </div>
-            <div className="row">
-                <div className="col-3">
-                    <label htmlFor="" className="form-label fieldName">Topic</label>
-                    {/* <CheckboxDropdown optionList={topics} returnSelectedData={setTopic} resetKey={resetKey}/> */}
-                    <div className='groupedInput  mb-3'>
-                        <input className='form-control' type="text" list="topics" ref={topicToBeAdded}/>
-                        <button type="button" onClick={setTopic}>Add</button>
+            <div className='problemBody d-flex align-items-start justify-content-start'>
+                <div className='container-fluid problemInfo'>
+                    <div className='row mb-3'>
+                        <div className='col-12'>
+                            <DataForm.StatementInput />
+                        </div>
                     </div>
-                    <datalist id="topics">
-                        {topics.map(topic => <option value={topic}/>)}
-                    </datalist>
+                    <div className="row mb-3">
+                        <div className="col-12">
+                            <DataForm.DescriptionInput />
+                        </div>
+                    </div>
+                    <div className="row mb-3">
+                        <div className="col">
+                            <DataForm.DifficultyInput />
+                        </div>
+                        <div className="col">
+                            <DataForm.StatusInput />
+                        </div>
+                    </div>
+                    <div className="row mb-3">
+                        <div className="col-12">
+                            <DataForm.TopicInput />
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-12">
+                            <DataForm.TopicDisplay />
+                        </div>
+                    </div>
                 </div>
-                <div className="col-9" id="selectedTopics">
-                    {formData.topics.map((topic,index) => <div className='topicTab' onClick={()=>unselectTopic(index)}>{topic}<span>&#x2717;</span></div>)}
+                <div className='problemEditorWrapper w-50'>
+                    <div>
+                        <label 
+                            className={('form-label fieldName editorLabel')+(editor==='code'?' activeEditorLabel':'')} 
+                            htmlFor='solutionWrapper' 
+                            onClick={()=>setEditor("code")}>
+                                Solution
+                        </label>
+                        <label 
+                            className={('form-label fieldName editorLabel')+(editor==='text'?' activeEditorLabel':'')} 
+                            htmlFor='noteWrapper' 
+                            onClick={()=>setEditor("text")}>
+                                Notes
+                        </label>
+                    </div>
+                    {
+                        editor === 'code'?
+                        <div className='problemEditor' id="solutionWrapper">
+                            <CodeEditor solutions={solutions} setSolutions={setSolutions}/>
+                        </div>
+                        :
+                        <div className='problemEditor' id="noteWrapper">
+                            <TextEditor notes={notes} setNotes={setNotes}/>
+                        </div>
+                    }
                 </div>
             </div>
-            <div className='row editor-row'>
-                <div className='col'>
-                    <label className='form-label fieldName' htmlFor="">Note</label>
-                    {/* <MultiTextArea textAreaTitle="Note" getData={addNotes} resetKey={resetKey}/> */}
-                    <TextEditor />
-                </div>
-                <div className='col'>
-                    <label className='form-label fieldName' htmlFor="">Solution</label>
-                    {/* <MultiTextArea textAreaTitle="Solution" getData={addSolutions} resetKey={resetKey}/> */}
-                    <CodeEditor />
-                </div>
-            </div>
-            <div className="row justify-content-between mt-2">
-                <div className="col-2 text-center">
-                    <button type="button" className='btn btn-primary w-100' onClick={submitProblem}>Submit</button>
-                </div>
-                <div className="col-2 text-center">
-                    <button type="button" className='btn btn-danger w-100'b onClick={resetForm}>Reset</button>
-                </div>
-            </div>
-        </form>
+            </DataForm>
+        </div>
     )
 }
 

@@ -11,6 +11,7 @@ function showError(text){
     removePopupAlertStyle(popup);
     popup.classList.add("alert-danger");
     showPopup();
+
 }
 
 function showSuccess(text){
@@ -44,7 +45,10 @@ function removePopupAlertStyle(popup){
     popup.classList.remove("alert-info");
 }
 
-function showPopup(){document.getElementById("popup-wrapper").style.display = "flex";}
+function showPopup(){
+    document.getElementById("popup-wrapper").style.display = "flex";
+    setTimeout(hidePopup, 3000);
+}
 function hidePopup(){document.getElementById("popup-wrapper").style.display = "none";}
 
 function getIcon(link){
@@ -59,6 +63,30 @@ function getIcon(link){
     else return "/images/code.svg"
 }
 
+function getFormatedLocaleDateTime(dateString){
+    if(!dateString) return "";
+    return new Date(dateString).toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
+function validateFormData(formData){
+    if(!formData.link){
+        showError("Problem link is required!");
+        return false;
+    }
+    if(!formData.link.startsWith("https://") && !formData.link.startsWith("http://")){
+        showError("Please enter a valid link!");
+        return false;
+    }
+    return true;
+}
+
 export {
     showPassword,
     showError,
@@ -66,5 +94,7 @@ export {
     showWarning,
     showInfo,
     hidePopup,
-    getIcon
+    getIcon,
+    getFormatedLocaleDateTime,
+    validateFormData
 }

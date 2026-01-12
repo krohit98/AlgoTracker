@@ -1,81 +1,104 @@
 import * as React from 'react';
 import SolutionPopup from './SolutionPopup';
 import * as service from '../Service/service';
-import * as helper from '../Service/helper';
-import { CodeSlash, FileEarmarkText, Flag, Pencil, Trash } from 'react-bootstrap-icons';
+import ProblemStatus from './shared/ProblemStatus';
+import DataTable from './InputComponents/DataTable';
+import { ProblemContext } from './shared/context';
 
-const ProblemTable = (props) => {
+const ProblemTable = () => {
 
-    const [popupContent, setPopupContent] = React.useState('')
+    const [popupContent, setPopupContent] = React.useState({})
+    const [problems, setProblems] = React.useContext(ProblemContext);
 
-    function flagProblem(e, problem){
-        service.flagProblemById(problem.id, !(problem.flagged))
+    const flagProblem = (problem) => updateProblem(problem, 'flag');
+    const markProblemAsSolved = (problem) => updateProblem(problem, 'markSolved');
+    const markProblemAsUnsolved = (problem) => updateProblem(problem, 'markUnsolved');
+    const markProblemForRevision = (problem) => updateProblem(problem, 'markRevise');
+
+    async function updateProblem(problem, action){
+        const problemId = problem?.id || null;
+        if(!problemId) return;
+        let response = null;
+        try{
+            switch(action){
+                case 'flag':
+                    response = await service.flagProblemById(problem.id, {flagged:!(problem.flagged)})
+                    break;
+                case 'markSolved':
+                    response = await service.updateProblemById(problemId, {status:ProblemStatus.SOLVED});
+                    break;
+                case 'markUnsolved':
+                    response = await service.updateProblemById(problemId, {status:ProblemStatus.UNSOLVED});
+                    break;
+                case 'markRevise':
+                    response = await service.updateProblemById(problemId, {status:ProblemStatus.REVISE});
+                    break;
+                default:
+                    return;
+            }
+            if(response.success){
+                const updatedProblems = problems.all.map(p => p.id === problem.id ? {...p, ...response.body} : p);
+                setProblems({...problems, all:updatedProblems});
+            }
+        }catch(error){
+            console.error(error);
+        }
     }
 
     function navigateToProblem(link){
         window.open(link,'_target');
     }
 
+    React.useEffect(()=>{
+        let updatedProblem = problems.all.find(p => p.id === popupContent?.problem?.id) || null;
+        if(updatedProblem) setPopupContent({...popupContent, problem:updatedProblem});
+    }, [problems]);
+
     return(
-        <div id='problemTableWrapper'>
-            <table id='problemTable' className='table table-sm align-middle bg-white text-center mb-0'>
+        <>
+            <DataTable id='problemTable'>
                 <thead>
                     <tr>
-                        <th></th>
-                        <th className='w-50'>Statement</th>
-                        <th>Difficulty</th>
-                        <th>Status</th> 
-                        <th></th>
+                        <DataTable.StatementHeader />
+                        <DataTable.DifficultyHeader />
+                        <DataTable.StatusHeader />
+                        <DataTable.ActionHeader /> 
                     </tr>
                 </thead>
                 <tbody>
-                {props.problems.length > 0 ? props.problems?.map((problem,index)=>{
-                    return(
-                        <tr key={problem.id} className="problem">
-                            <td className="platformIconWrapper"><img className="platformIcon" src={helper.getIcon(problem.link)} alt="platform icon"/></td>
-                            <td className='w-50 problem-item' onClick={()=>navigateToProblem(problem.link)}>
-                                <table className='w-100'>
-                                    <tbody>
-                                        <tr><td className='problemStatement'>{problem.statement}</td></tr>
-                                        <tr><td className='problemTopics'>{problem.Topics.map(item=><div className='topicTab'>{item.topic}</div>)}</td></tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                            <td className={problem.difficulty}>{problem.difficulty}</td>
-                            <td className={problem.status}>{problem.status}</td>
-                            <td>
-                                <div className='problemAction'>
-                                    <Flag title="Flag" onClick={(e)=>{flagProblem(e, problem)}} color={"rgb(0, 110, 255)"}/>
-                                    <FileEarmarkText 
-                                        title="View Notes" 
-                                        disabled={problem.notes?false:true} 
-                                        onClick={()=>setPopupContent({Notes:problem.Notes, Solutions:problem.Solutions, Clicked:'Notes'})} 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#solution-modal" 
-                                        color={"rgb(0, 110, 255)"}
+                    {
+                        problems.display.length > 0 ? problems.display?.map((problem)=>{
+                            return(
+                                <tr key={problem.id} className="problem">
+                                    <DataTable.StatementData 
+                                        statement={problem.statement} 
+                                        problemId={problem.id} 
+                                        link={problem.link}
+                                        topics={problem.topics} 
+                                        onClick={()=>navigateToProblem(problem.link)}
                                     />
-                                    <CodeSlash 
-                                        title="View Solution" 
-                                        disabled={problem.solution?false:true} 
-                                        onClick={()=>setPopupContent({Notes:problem.Notes, Solutions:problem.Solutions, Clicked:'Solutions'})} 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#solution-modal" 
-                                        color={"rgb(0, 110, 255)"}
-                                    />
-                                    <Pencil title="Edit" color={"rgb(0, 110, 255)"}/>
-                                    <Trash title="Delete" color={"red"}/>
-                                </div>
-                            </td>
-                        </tr>
-                    )
-                })
-                :
-                <tr><td id="empty-table-placeholder" colSpan={5}>Add a new problem to view here.</td></tr>
-                }
+                                    <DataTable.DifficultyData difficulty={problem.difficulty}/>
+                                    <DataTable.StatusData status={problem.status}/>
+                                    <DataTable.ActionData>
+                                        {problem.status!==ProblemStatus.SOLVED && <DataTable.MarkSolvedAction onClick={()=>markProblemAsSolved(problem)}/>}
+                                        {problem.status!==ProblemStatus.UNSOLVED && <DataTable.MarkUnsolvedAction onClick={()=>markProblemAsUnsolved(problem)}/>}
+                                        {problem.status!==ProblemStatus.REVISE && <DataTable.MarkReviseAction onClick={()=>markProblemForRevision(problem)}/>}
+                                        <DataTable.FlagAction onClick={()=>flagProblem(problem)} flagged={problem.flagged}/>
+                                        <DataTable.ViewProblemAction onClick={()=>setPopupContent({problem, clicked:'Problem'})}/>
+                                        <DataTable.NotesAction disabled={!problem.notes} onClick={()=>setPopupContent({problem, clicked:'Notes'})}/>
+                                        <DataTable.SolutionAction disabled={!problem.solution} onClick={()=>setPopupContent({problem, clicked:'Solutions'})}/>
+                                        <DataTable.DeleteAction />
+                                    </DataTable.ActionData>
+                                </tr>
+                            )
+                        })
+                        :
+                        <tr><td id="empty-table-placeholder" colSpan={5}>Add a new problem to view here.</td></tr>
+                    }
                 </tbody>
-            </table>
-            <SolutionPopup data={popupContent}/>
-        </div>
+            </DataTable>
+            <SolutionPopup data={{...popupContent}}/>
+        </>
     )
 }
 
