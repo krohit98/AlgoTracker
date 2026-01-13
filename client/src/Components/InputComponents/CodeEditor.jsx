@@ -1,12 +1,16 @@
 import * as React from 'react';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/themes/prism.css'; //Example style, you can use another
+
+import { Editor } from '@monaco-editor/react';
+import { MoonStars, Sun } from 'react-bootstrap-icons';
 
 const CodeEditor = (props) => {
+  return props.disabled ? <CodeEditorDisabled {...props}/> : <CodeEditorEnabled {...props}/>;
+}
+
+const CodeEditorEnabled = (props) => {
   const [code, setCode] = React.useState('');
+  const [language, setLanguage] = React.useState('javascript');
+  const [theme, setTheme] = React.useState('light');
 
   React.useEffect(()=>{
     if(props.disabled || !props.setSolutions) return;
@@ -19,28 +23,50 @@ const CodeEditor = (props) => {
   },[code, props.disabled]);
 
   React.useEffect(()=>{
-    setCode(props?.solutions?.[props.solutions.length - 1]?.code || 
-    `// write code here.`);
+    setCode(props?.solutions?.[props.solutions.length - 1]?.code || '');
   },[props.solutions]);
+
+  React.useEffect(()=>{
+    console.log(language)
+  },[language])
 
   return (
     <div className='codeEditorWrapper'>
-    <Editor
+      <div className='d-flex justify-content-between mb-2'>
+        <select value={language} onChange={(e)=>setLanguage(e.target.value)}>
+          <option value="javascript">Javascript</option>
+          <option value="java">Java</option>
+          <option value="cpp">CPP</option>
+          <option value="python">Python</option>
+        </select>
+        <div>
+          <Sun size={20} onClick={()=>setTheme('light')}/>
+          <MoonStars size={20} className='ms-3' onClick={()=>setTheme('vs-dark')}/>
+        </div>
+      </div>
+      <Editor
+        height="100%"
+        width="100%"
+        defaultLanguage='javascript'
+        language={language}
+        defaultValue="// write your code here..."
         value={code}
-        onValueChange={code => setCode(code)}
-        highlight={code => highlight(code, languages.js)}
-        padding={10}
-        style={{
-            fontFamily: '"Fira code", "Fira Mono", monospace',
-            fontSize: 14,
-            minHeight:"100%"
+        theme={theme}
+        options={{
+          readOnly:false,
+          automaticLayout: true,
+          minimap: { enabled: false },
+          fontSize: 14,
+          wordWrap: 'on',
         }}
-        textareaId = {props.id || ""}
-        textareaClassName = {props.className || "codeEditor"}
-        />
+      />
     </div>
     
   );
-}
+};
+
+const CodeEditorDisabled = () => {
+
+};
 
 export default CodeEditor;

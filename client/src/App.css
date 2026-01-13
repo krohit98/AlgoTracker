@@ -812,34 +812,6 @@ tr.problem{
   color:rgb(0, 110, 255);
   background: rgba(0, 110, 255, 0.1);
 }
-.codeEditorWrapper{
-  overflow:auto;
-  height:calc(100vh - 210px);
-  border:1px solid rgb(150,150,150);
-  border-radius:10px;
-}
-.codeEditor{
-  border:none !important;
-  outline:none;
-}
-/* .textEditor .ql-editor{
-  height:calc(100vh - 255px);
-}
-.ql-container.ql-snow{
-  border:1px solid rgb(150,150,150) !important;
-  border-top:none !important;
-  border-radius: 0 0 5px 5px;
-}
-.ql-toolbar.ql-snow{
-  border:1px solid rgb(150,150,150) !important;
-  border-radius:5px 5px 0 0;
-}
-.textEditor-disabled .ql-editor{
-  height:auto;
-}
-.textEditor-disabled .ql-container.ql-snow{
-  border:none !important;
-} */
 #selectedTopics{
   display:flex;
   flex-wrap:wrap;
@@ -938,4 +910,12 @@ tr.problem{
 }
 #textEditorUpdateButton{
   margin:20px 0;
+}
+/* CODE EDITOR */
+.codeEditorWrapper{
+  overflow:hidden;
+  height:calc(100vh - 210px);
+  border:1px solid rgb(150,150,150);
+  border-radius:10px;
+  padding:5px;
 }

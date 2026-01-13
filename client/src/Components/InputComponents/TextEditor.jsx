@@ -23,7 +23,7 @@ const initEditor = (readOnly, content, editorRef, holderRef, editorOnChange) => 
             if(editorOnChange) editorOnChange(content);
         },
         tools: EDITOR_JS_TOOLS,
-        placeholder: "Start writing your note here...",
+        placeholder: "Write your note here...",
         readOnly
     });
 };
