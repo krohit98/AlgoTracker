@@ -1,7 +1,14 @@
 const { User } = require('../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { generateToken } = require('../utils/token.js');
 
+// register function to create a new user
+// @param req - request object
+// @param res - response object
+// @returns - success message
+// @throws - error if name, email or password is not provided
+// @throws - error if user already exists
 const register = async(req,res) => {
     const {
         name,
@@ -17,7 +24,7 @@ const register = async(req,res) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
 
-    const createdUser = await User.create({
+    await User.create({
         name,
         email,
         password:hash
@@ -29,6 +36,13 @@ const register = async(req,res) => {
     })
 }
 
+// login function to authenticate user and generate access and refresh tokens
+// @param req - request object
+// @param res - response object
+// @returns - access token and refresh token
+// @throws - error if email or password is not provided
+// @throws - error if user is not registered
+// @throws - error if password is invalid
 const login = async(req,res) => {
     const {
         email,
@@ -47,8 +61,8 @@ const login = async(req,res) => {
 
     const userObject = {name:existingUser.name, email}
 
-    const accessToken = generateAccessToken({userObject});
-    const refreshToken = generateRefreshToken({userObject});
+    const accessToken = generateToken('access',{userObject});
+    const refreshToken = generateToken('refresh',{userObject});
 
     const updateObject = {
         refreshToken,
@@ -70,7 +84,7 @@ const login = async(req,res) => {
         maxAge:24*60*60*1000
     })
 
-    res.status(200).send({
+    return res.status(200).send({
         success:true,
         body:{
             name:existingUser.name,
@@ -80,30 +94,13 @@ const login = async(req,res) => {
     })
 }
 
-const refresh = (req,res) => {
-    if(!req.cookies?.refreshjwt) return res.status(401).send({success:false,body:{message:'Unauthorized! Refresh token not found.'}})
-
-    const refreshToken = req.cookies.refreshjwt;
-
-    jwt.verify(refreshToken, process.env.REFRESH_KEY,
-        async (error, decoded) => {
-            if(error) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
-
-            const user = await User.findOne({where:{email:decoded.userObject.email}})
-
-            if(!user) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid refresh token.'}})
-
-            const accessToken = generateAccessToken({userObject:decoded.userObject});
-            res.cookie('accessjwt', accessToken ,{
-                httpOnly:true,
-                secure:false,
-                sameSite:'strict',
-            })
-            .send({success:true,body:{message:'Access token refreshed!'}}) 
-        } 
-    )
-}
-
+// logout function to clear cookies and invalidate session
+// this function will be used to logout the user
+// @param req - request object
+// @param res - response object
+// @returns - success message
+// @throws - error if refresh token is not found or invalid
+// @throws - error if user is not found
 const logout = (req,res) => {
     if(!req.cookies?.refreshjwt) return res.status(404).send({success:false,body:{message:'Token not found! No session in progress.'}});
 
@@ -126,48 +123,13 @@ const logout = (req,res) => {
 
             res.clearCookie('accessjwt');
             res.clearCookie('refreshjwt');
-            res.send({success:true,body:{message:'User logged out!'}})
+            return res.send({success:true,body:{message:'User logged out!'}})
         }
     )
-}
-
-const authenticate = (req,res) => {
-    if(!req.cookies?.accessjwt) return res.status(401).send({success:false,body:{message:'Unauthorized! Access token not found.'}});
-
-    let accessToken = req.cookies.accessjwt;
-
-    jwt.verify(accessToken, process.env.AUTH_KEY,
-        (error, decoded) => {
-            if(error) return res.status(401).send({success:false,body:{message:'Unauthorized! Invalid access token.'}})
-
-            res.status(200).send({success:true,body:{message:'Resource sent!'}})
-        })
-}
-
-function generateAccessToken(userObject){
-    const accessToken = jwt.sign(
-    userObject,
-    process.env.AUTH_KEY,
-    {
-        expiresIn:'10m'
-    });
-    return accessToken;
-}
-
-function generateRefreshToken(userObject){
-    const refreshToken = jwt.sign(
-    userObject,
-    process.env.REFRESH_KEY,
-    {
-        expiresIn:'1d'
-    });
-    return refreshToken;
 }
 
 module.exports={
     login,
     register,
-    refresh,
-    logout,
-    authenticate
+    logout
 }

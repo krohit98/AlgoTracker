@@ -8,7 +8,7 @@ require('dotenv').config();
 const PORT = process.env.PORT;
 
 const corsOptions = {
-    origin: ['http://localhost:3000','http://localhost:3001'],
+    origin: ['http://localhost:3000'],
     credentials:true
 }
 

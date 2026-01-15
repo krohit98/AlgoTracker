@@ -21,7 +21,8 @@ module.exports = (sequelize, DataTypes) => {
     email: DataTypes.STRING,
     password: DataTypes.STRING,
     refreshToken: DataTypes.STRING,
-    refreshTokenExpiryDate: DataTypes.DATE
+    refreshTokenExpiryDate: DataTypes.DATE,
+    codeTheme: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'User',

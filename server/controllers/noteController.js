@@ -44,11 +44,13 @@ const updateNoteById = async (req,res) =>{
         content
     } = req.body;
 
+    console.log(title, content)
+
     let note = await Note.findOne({where:{id:noteId}})
 
     if(!note) return res.status(404).send({success:false, body:{message:"note not found"}})
 
-    let response = await Note.update({
+    let response = await note.update({
         title,
         content
     })
@@ -66,7 +68,7 @@ const deleteNoteById = async (req,res) =>{
 
     if(!note) return res.status(404).send({success:false, body:{message:"Note not found"}})
 
-    Note.destroy();
+    note.destroy();
 
     return res.status(200).send({success:true});
 }

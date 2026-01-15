@@ -31,7 +31,8 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.STRING,
     difficulty: DataTypes.STRING,
     flagged:DataTypes.BOOLEAN,
-    topics:DataTypes.ARRAY(DataTypes.STRING)
+    topics:DataTypes.ARRAY(DataTypes.STRING),
+    description: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'Problem',

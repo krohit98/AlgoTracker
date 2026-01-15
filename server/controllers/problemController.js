@@ -22,17 +22,21 @@ const addProblemByUserId = async (req,res) =>{
         statement,
         link,
         status,
-        difficulty
+        difficulty,
+        topics,
+        description
     } = req.body;
 
     if(!statement && !link) return res.status(404).send({success:false, body:{message:"Problem statement and link not provided"}});
     
     const newProblem = await Problem.create({
-        userId:userId,
-        statement:statement,
-        link:link,
-        status:status,
-        difficulty:difficulty
+        userId,
+        statement,
+        link,
+        status,
+        difficulty,
+        topics,
+        description
     })
 
     return res.status(200).send({success:true, body:newProblem});
@@ -49,7 +53,9 @@ const updateProblemById = async (req,res) =>{
         statement,
         link,
         status,
-        difficulty
+        difficulty,
+        topics,
+        description
     } = req.body;
 
     let problem = await Problem.findOne({where:{id:problemId}})
@@ -60,7 +66,9 @@ const updateProblemById = async (req,res) =>{
         statement, 
         link,
         status,
-        difficulty
+        difficulty,
+        topics,
+        description
     })
 
     return res.status(200).send({success:true, body:response});
@@ -82,6 +90,7 @@ const deleteProblemById = async (req,res) =>{
 }
 
 const flagProblemById = async (req,res) => {
+
     let problemId = req.params.problemId;
 
     if(!problemId) return res.status(404).send({success:false, body:{message:"Problem Id not provided"}})
@@ -97,10 +106,39 @@ const flagProblemById = async (req,res) => {
     return res.status(200).send({success:true, body:response});
 }
 
+const getLeetcodeProblems = async (_, res) => {
+    const response = await fetch('https://leetcode.com/api/problems/all/', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
+
+    if (!response.ok) {
+        return res.status(500).send({success: false, body: {message: "Failed to fetch problems from LeetCode"}});
+    }
+
+    let problemSet = await response.json();
+    if (!problemSet || !problemSet.stat_status_pairs) {
+        return res.status(500).send({success: false, body: {message: "Failed to fetch problems from LeetCode"}});
+    }
+
+    problemSet = problemSet.stat_status_pairs.map(problem => ({
+        id: problem.stat.question_id,
+        statement: problem.stat.question__title,
+        difficulty: problem.difficulty.level === 1 ? 'Easy' : problem.difficulty.level === 2 ? 'Medium' : 'Hard',
+        status: 'Unsolved',
+        link: `https://leetcode.com/problems/${problem.stat.question__title_slug}/`
+    }));
+
+    return res.send({success: true, body: problemSet});
+} 
+
 module.exports = {
     getProblemsByUserId,
     addProblemByUserId,
     updateProblemById, 
     deleteProblemById,
-    flagProblemById
+    flagProblemById,
+    getLeetcodeProblems
 }

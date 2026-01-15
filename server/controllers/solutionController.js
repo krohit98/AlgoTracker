@@ -48,7 +48,7 @@ const updateSolutionById = async (req,res) =>{
 
     if(!solution) return res.status(404).send({success:false, body:{message:"solution not found"}})
 
-    let response = await Solution.update({
+    let response = await solution.update({
         title,
         code
     })
@@ -66,7 +66,7 @@ const deleteSolutionById = async (req,res) =>{
 
     if(!solution) return res.status(404).send({success:false, body:{message:"solution not found"}})
 
-    Solution.destroy();
+    solution.destroy();
 
     return res.status(200).send({success:true});
 }
