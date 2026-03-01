@@ -153,7 +153,7 @@ code{
 
 #mainContent{
   width:100%;
-  height:calc(100vh - 50px);
+  height:100vh;
   display:flex;
   flex-direction: column;
   position:relative;
@@ -500,7 +500,7 @@ code{
 }
 .dataTable thead{
   position:sticky;
-  top:0;
+  top:-15px;
   background-color: rgb(50,50,50);
 }
 .dataTable thead th{
@@ -684,7 +684,8 @@ tr.problem{
 #myProblemList{
   display:flex;
   flex-direction:column;
-  height:calc(100vh - 200px);
+  overflow-x:hidden;
+  overflow-y:auto
 }
 .fieldName{
   font-size:small;
@@ -908,14 +909,59 @@ tr.problem{
 #textEditorDisabled .ce-block__content{
   max-width:85% !important;
 }
-#textEditorUpdateButton{
+#editorUpdateButton{
   margin:20px 0;
 }
 /* CODE EDITOR */
 .codeEditorWrapper{
   overflow:hidden;
-  height:calc(100vh - 210px);
   border:1px solid rgb(150,150,150);
   border-radius:10px;
-  padding:5px;
+}
+#problemForm .codeEditorWrapper{
+  height:calc(100vh - 210px);
+}
+#solution-modal .codeEditorWrapper{
+  height:calc(100vh - 200px);
+}
+#solution-modal .codeEditorWrapperCompact{
+  height:calc(100vh - 275px);
+}
+#codeEditorLanguageSelector{
+  border:none !important;
+  outline:none !important;
+  color:rgb(0, 110, 255);
+  /* border-bottom: 1px solid rgb(200, 200, 200) !important; */
+  background:rgb(245,245,245);
+  border-radius:5px;
+}
+#delete-popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100vw;
+  height:100vh;
+  background:rgba(0, 0, 0, 0.5);
+  z-index:1000000;
+  flex-direction:column;
+  justify-content: center;
+  align-items: center;
+}
+#delete-popup .popup-modal{
+  width:30vw;
+  height:fit-content;
+  background:white;
+  border-radius:10px;
+  padding:20px;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align:center;
+}
+.delete-popup-show{
+  display:flex;
+}
+.delete-popup-hide{
+  display:none;
 }

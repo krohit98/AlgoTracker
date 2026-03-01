@@ -27,11 +27,6 @@ const ProblemEditorDisabled = ({problem}) => (
                 <div className='statusWrapper'><small>Status</small><span className={problem?.status || "notProvided"}>{problem?.status || "Not Provided"}</span></div>
                 <div className='difficultyWrapper'><small>Difficulty</small><span className={problem?.difficulty || "notProvided"}>{problem?.difficulty || "Not Provided"}</span></div>
             </div>
-            <div className='d-flex align-items-center gap-3'>
-                {problem?.status !== ProblemStatus.SOLVED && <button>Mark as Solved</button>}
-                {problem?.status !== ProblemStatus.UNSOLVED && <button>Mark as Unsolved</button>}
-                {problem?.status !== ProblemStatus.REVISE && <button>Mark for Revision</button>}
-            </div>
         </div>
     </div>
 );

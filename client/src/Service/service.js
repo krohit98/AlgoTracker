@@ -39,6 +39,17 @@ async function updateData(url, payload){
     .then(response => response.json());
 }
 
+async function deleteData(url){
+    return fetch(url,{
+        method:'DELETE',
+        credentials:'include',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json());
+}
+
 // APPLICATION SPECIFIC FUNCTIONS
 
 async function login(payload){
@@ -70,7 +81,8 @@ async function flagProblemById(problemId, payload){
 }
 
 async function deleteProblemById(problemId){
-    return postData(`${domain}/problem/delete/${problemId}`)
+    console.log(problemId)
+    return deleteData(`${domain}/problem/delete/${problemId}`)
 }
 
 async function addNotesByProblemId(problemId, noteArray){
@@ -93,6 +105,18 @@ async function getLeetcodeProblemSet(){
     return getData(`${domain}/problem/leetcode`)
 }
 
+async function updateCodeThemeByUserId(userId, codeTheme){
+    return updateData(`${domain}/user/update/codetheme/${userId}`, {codeTheme})
+}
+
+async function deleteNotesByProblemId(problemId){
+    return deleteData(`${domain}/note/delete/problem/${problemId}`);
+}
+
+async function deleteSolutionsByProblemId(problemId){
+    return deleteData(`${domain}/solution/delete/problem/${problemId}`);
+}
+
 
 export {
     login,
@@ -107,5 +131,8 @@ export {
     updateNotesById,
     addSolutionsByProblemId,
     updateSolutionById,
-    getLeetcodeProblemSet
+    getLeetcodeProblemSet,
+    updateCodeThemeByUserId,
+    deleteNotesByProblemId,
+    deleteSolutionsByProblemId
 }

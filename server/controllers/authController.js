@@ -84,12 +84,15 @@ const login = async(req,res) => {
         maxAge:24*60*60*1000
     })
 
+    console.log(existingUser)
+
     return res.status(200).send({
         success:true,
         body:{
             name:existingUser.name,
             email:existingUser.email,
-            userId:existingUser.id
+            userId:existingUser.id,
+            codeTheme:existingUser.codeTheme
         }
     })
 }

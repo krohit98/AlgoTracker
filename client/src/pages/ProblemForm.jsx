@@ -5,6 +5,7 @@ import { UserContext } from '../Components/shared/context';
 import CodeEditor from '../Components/InputComponents/CodeEditor';
 import TextEditor from '../Components/InputComponents/TextEditor';
 import DataForm from '../Components/InputComponents/DataForm';
+import { set } from 'lodash';
 
 const ProblemForm = () =>{
 
@@ -12,6 +13,7 @@ const ProblemForm = () =>{
     const [notes, setNotes] = React.useState([]);
     const [solutions, setSolutions] = React.useState([]);
     const [editor, setEditor] = React.useState('code');
+    const [resetKey, setResetKey] = React.useState(0);
 
 
     function resetForm(){
@@ -37,13 +39,14 @@ const ProblemForm = () =>{
             if(solutions.length > 0) await service.addSolutionsByProblemId(addedProblem.body.id, solutions);
             helper.showSuccess('Problem added successfully!')
             resetForm();
+            setResetKey(prev => prev+1);
         }
 
     }
 
     return(
         <div className='contentArea' id='problemForm'>
-            <DataForm>
+            <DataForm resetKey={resetKey}>
             <div className='problemHeader d-flex justify-content-between align-items-center mb-3'>
                 <DataForm.LinkInput />
                 <div className='d-flex gap-2 w-25 ms-3'>

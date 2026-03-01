@@ -52,7 +52,6 @@ const TextEditorEnabled = (props) => {
         service.addNotesByProblemId(props.problemId, [{title: "Note#1", content: value}])
         .then(response => {
             if(response.success){
-                console.log(response, problems.all)
                 helper.showSuccess("Note created successfully!");
                 const updatedProblems = problems.all.map(p => {
                     if(p.id === props.problemId){
@@ -89,12 +88,12 @@ const TextEditorEnabled = (props) => {
                 setProblems({...problems, all:updatedProblems});
             }
             else{
-                helper.showError("Update failed! Please try again later");
+                helper.showError("Failed to update note! Please try again later");
                 console.error(response.body.message)
             }
         })
         .catch(error => {
-            helper.showError("Update failed! Please try again later");
+            helper.showError("Failed to update note! Please try again later");
             console.error(error);
         });
 
@@ -114,8 +113,9 @@ const TextEditorEnabled = (props) => {
         };
     }, []);
 
+    // This will only trigger from the problem form page while creating a new problem and adding notes.
     React.useEffect(() => {
-        if (props.disabled || !props.setNotes) return;
+        if (props.disabled || !props.setNotes || !value) return;
 
         let title = props?.notes?.[props.notes.length - 1]?.title || "Note #1";
         if (props.problem) {
@@ -127,7 +127,7 @@ const TextEditorEnabled = (props) => {
     return (
         <>
         <div id="textEditorEnabled" ref={holderRef}></div>
-        {props.showUpdateButton && <button id="textEditorUpdateButton" className='btn btn-primary w-25' onClick={handleClick}>{isExistingNote ? "Update Note" : "Create Note" }</button>}
+        {props.showUpdateButton && <button id="editorUpdateButton" className='btn btn-primary w-25' onClick={handleClick}>{isExistingNote ? "Update Note" : "Create Note" }</button>}
         </>
     );
 };

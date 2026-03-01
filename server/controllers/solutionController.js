@@ -24,9 +24,10 @@ const addSolutionsByProblemId = async (req,res) =>{
         const newSolution = await Solution.create({
             problemId,
             title:solution.title,
-            code:solution.code
+            code:solution.code,
+            language:solution.language
         })
-        addedSolutions.push(newSolution);
+        addedSolutions.push(newSolution); 
     }
  
     return res.status(200).send({success:true, body:addedSolutions});
@@ -41,7 +42,8 @@ const updateSolutionById = async (req,res) =>{
 
     let {
         title,
-        code
+        code,
+        language
     } = req.body;
 
     let solution = await Solution.findOne({where:{id:solutionId}})
@@ -50,7 +52,8 @@ const updateSolutionById = async (req,res) =>{
 
     let response = await solution.update({
         title,
-        code
+        code,
+        language
     })
 
     return res.status(200).send({success:true, body:response});
@@ -71,9 +74,26 @@ const deleteSolutionById = async (req,res) =>{
     return res.status(200).send({success:true});
 }
 
+const deleteSolutionsByProblemId = async (req,res) =>{
+    let problemId = req.params.problemId;
+
+    if(!problemId) return res.status(404).send({success:false, body:{message:"Problem Id not provided"}})
+
+    let solutions = await Solution.findAll({where:{problemId:problemId}})
+
+    if(solutions.length < 1) return res.status(404).send({success:false, body:{message:"Solutions not found"}})
+
+    for(let solution of solutions){
+        await solution.destroy();
+    }
+
+    return res.status(200).send({success:true});
+}
+
 module.exports = {
     getSolutionsByProblemId,
     addSolutionsByProblemId,
     updateSolutionById, 
-    deleteSolutionById
+    deleteSolutionById,
+    deleteSolutionsByProblemId
 }

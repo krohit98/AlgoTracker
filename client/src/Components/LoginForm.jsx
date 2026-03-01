@@ -63,7 +63,7 @@ const LoginForm = (props) => {
                 <button className="btn btn-primary w-100" onClick={loginUser}>Login</button>
                 <div className='d-flex justify-content-between'>
                     <Link to='/register'><small>New User? Register here</small></Link>
-                    <small>Forgot Password</small> 
+                    {/* <small>Forgot Password</small>  */}
                 </div>
             </div> 
         </div>

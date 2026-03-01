@@ -21,11 +21,13 @@ const authRoutes = require('./routes/authRoutes');
 const problemRoutes = require('./routes/problemRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const solutionRoutes = require('./routes/solutionRoutes');
+const userRoutes = require('./routes/userRoutes');
 
 app.use('/apis/auth', authRoutes);
 app.use('/apis/problem',problemRoutes);
 app.use('/apis/note',noteRoutes);
 app.use('/apis/solution',solutionRoutes);
+app.use('/apis/user', userRoutes);
 
 app.listen(PORT,()=>{
     console.log(`Server running on port ${PORT}`);

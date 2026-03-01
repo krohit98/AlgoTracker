@@ -73,9 +73,26 @@ const deleteNoteById = async (req,res) =>{
     return res.status(200).send({success:true});
 }
 
+const deleteNotesByProblemId = async (req, res) =>{
+    let problemId = req.params.problemId;
+
+    if(!problemId) return res.status(404).send({success:false, body:{message:"Problem Id not provided"}})
+
+    let notes = await Note.findAll({where:{problemId:problemId}})
+
+    if(notes.length < 1) return res.status(404).send({success:false, body:{message:"Notes not found"}})
+
+    for(let note of notes){
+        await note.destroy();
+    }
+
+    return res.status(200).send({success:true});
+}
+
 module.exports = {
     getNotesByProblemId,
     addNotesByProblemId,
     updateNoteById, 
-    deleteNoteById
+    deleteNoteById,
+    deleteNotesByProblemId
 }

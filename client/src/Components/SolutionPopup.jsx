@@ -13,18 +13,21 @@ const SolutionPopup = (props) => {
     const [editMode, setEditMode] = React.useState(false);
 
     React.useEffect(()=>{
+        console.log("props.data changed", props.data)
         setContent(props.data.clicked);
         setProblem(props.data.problem);
     },[props.data])
 
-    React.useEffect(()=>setEditMode(false),[content])
+    React.useEffect(()=>{
+        setEditMode(false);
+        if(content) props.setPopupClick(content);
+    },[content])
 
     React.useEffect(() => {
         const modal = document.getElementById('solution-modal');
         if (!modal) return;
 
         const handleHidden = () => {
-            console.log("Hidden")
             setContent('');
             setProblem({});
         };
@@ -82,8 +85,8 @@ const SolutionPopup = (props) => {
                                 </div>
                                 <div className='modal-info'>
                                     {content === 'Problem' && <ProblemEditor problem={{...problem}} disabled={!editMode}/>}
-                                    {content === 'Notes' && <TextEditor problemId={problem.id} notes={[problem?.Notes?.[selectedNote]]} disabled={!editMode} showUpdateButton={true}/>}
-                                    {content === 'Solutions' && <CodeEditor problemId={problem.id} solutions={[problem?.Solutions?.[selectedSolution]]} disabled={!editMode}/>}
+                                    {content === 'Notes' && <TextEditor problemId={problem.id} notes={problem?.Notes?.length > 0 ?[problem.Notes[selectedNote]] : []} disabled={!editMode} showUpdateButton={true}/>}
+                                    {content === 'Solutions' && <CodeEditor problemId={problem.id} solutions={problem?.Solutions?.length > 0 ? [problem.Solutions[selectedSolution]] : []} disabled={!editMode} showUpdateButton={true}/>}
                                 </div>
                             </div>
                         </div>

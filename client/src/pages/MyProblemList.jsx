@@ -50,9 +50,12 @@ const MyProblemList= () => {
 
         // filter by selected topics
         if(filter.topics.length > 0){
+            console.log('filter.topics', filter.topics)
             filteredList = filteredList.filter(problem => {
-                for(let item of problem.Topics){
-                    if(filter.topics.includes(item.topic)){
+                console.log(problem)
+                if(!Array.isArray(problem.topics) || problem.topics.length === 0) return false;
+                for(let topic of problem.topics){
+                    if(filter.topics.includes(topic)){
                         return true;
                     }
                 }
