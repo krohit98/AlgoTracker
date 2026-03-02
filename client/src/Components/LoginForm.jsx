@@ -12,8 +12,8 @@ const LoginForm = (props) => {
     const navigate = useNavigate();
 
     const initialState = {
-        email:'rohit@gmail.com',
-        password:'rohit123'
+        email:'',
+        password:''
     }
 
     const [formData, setFormData] = React.useState(initialState)
