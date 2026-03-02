@@ -8,7 +8,10 @@ require('dotenv').config();
 const PORT = process.env.PORT;
 
 const corsOptions = {
-    origin: ['http://localhost:3000'],
+    origin: [
+        'http://localhost:3000',
+        'https://algo-tracker-three.vercel.app'
+    ],
     credentials:true
 }
 
