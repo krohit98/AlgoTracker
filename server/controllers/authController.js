@@ -44,57 +44,63 @@ const register = async(req,res) => {
 // @throws - error if user is not registered
 // @throws - error if password is invalid
 const login = async(req,res) => {
-    const {
-        email,
-        password
-    } = req.body;
+    try{
+        const {
+            email,
+            password
+        } = req.body;
 
-    if(!email || !password) return res.status(404).send({success:false,body:{message:'All input required!'}})
+        if(!email || !password) return res.status(404).send({success:false,body:{message:'All input required!'}})
 
-    const existingUser = await User.findOne({where:{email:email}});
+        const existingUser = await User.findOne({where:{email:email}});
 
-    if(!existingUser) return res.status(404).send({success:false,body:{message:'User not registered! Kindly register.'}})
+        if(!existingUser) return res.status(404).send({success:false,body:{message:'User not registered! Kindly register.'}})
 
-    const validPassword = await bcrypt.compare(password, existingUser.password);
+        const validPassword = await bcrypt.compare(password, existingUser.password);
 
-    if(!validPassword) return res.status(400).send({success:false,body:{message:'Invalid credentials!'}})
+        if(!validPassword) return res.status(400).send({success:false,body:{message:'Invalid credentials!'}})
 
-    const userObject = {name:existingUser.name, email}
+        const userObject = {name:existingUser.name, email}
 
-    const accessToken = generateToken('access',{userObject});
-    const refreshToken = generateToken('refresh',{userObject});
+        const accessToken = generateToken('access',{userObject});
+        const refreshToken = generateToken('refresh',{userObject});
 
-    const updateObject = {
-        refreshToken,
-        refreshTokenExpiryDate:new Date(new Date().getTime() + (24*60*60*1000))
-    }
-
-    await User.update(updateObject, {where:{email:email}})
-
-    res.cookie('accessjwt', accessToken ,{
-        httpOnly:true,
-        secure:false,
-        sameSite:'secure',
-    })
-
-    res.cookie('refreshjwt', refreshToken,{
-        httpOnly:true,
-        secure:false,
-        sameSite:'secure',
-        maxAge:24*60*60*1000
-    })
-
-    console.log(existingUser)
-
-    return res.status(200).send({
-        success:true,
-        body:{
-            name:existingUser.name,
-            email:existingUser.email,
-            userId:existingUser.id,
-            codeTheme:existingUser.codeTheme
+        const updateObject = {
+            refreshToken,
+            refreshTokenExpiryDate:new Date(new Date().getTime() + (24*60*60*1000))
         }
-    })
+
+        await User.update(updateObject, {where:{email:email}})
+
+        res.cookie('accessjwt', accessToken ,{
+            httpOnly:true,
+            secure:false,
+            sameSite:'secure',
+        })
+
+        res.cookie('refreshjwt', refreshToken,{
+            httpOnly:true,
+            secure:false,
+            sameSite:'secure',
+            maxAge:24*60*60*1000
+        })
+
+        console.log(existingUser)
+
+        return res.status(200).send({
+            success:true,
+            body:{
+                name:existingUser.name,
+                email:existingUser.email,
+                userId:existingUser.id,
+                codeTheme:existingUser.codeTheme
+            }
+        })
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).send({success:false,body:{message:'Internal server error!'}})
+    }
 }
 
 // logout function to clear cookies and invalidate session
