@@ -74,13 +74,13 @@ const login = async(req,res) => {
     res.cookie('accessjwt', accessToken ,{
         httpOnly:true,
         secure:false,
-        sameSite:'strict',
+        sameSite:'secure',
     })
 
     res.cookie('refreshjwt', refreshToken,{
         httpOnly:true,
         secure:false,
-        sameSite:'strict',
+        sameSite:'secure',
         maxAge:24*60*60*1000
     })
 
