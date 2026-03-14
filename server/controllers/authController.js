@@ -50,33 +50,55 @@ const login = async(req,res) => {
             password
         } = req.body;
 
+        console.log("login initiated")
+
         if(!email || !password) return res.status(404).send({success:false,body:{message:'All input required!'}})
+
+        console.log("input validated")
 
         const existingUser = await User.findOne({where:{email:email}});
 
+        console.log("user fetched")
+
         if(!existingUser) return res.status(404).send({success:false,body:{message:'User not registered! Kindly register.'}})
+
+        console.log("user exists")
 
         const validPassword = await bcrypt.compare(password, existingUser.password);
 
+        console.log("password validated")
+
         if(!validPassword) return res.status(400).send({success:false,body:{message:'Invalid credentials!'}})
+
+        console.log("password valid")
 
         const userObject = {name:existingUser.name, email}
 
+        console.log("user object created")
+
         const accessToken = generateToken('access',{userObject});
         const refreshToken = generateToken('refresh',{userObject});
+
+        console.log("tokens generated")
 
         const updateObject = {
             refreshToken,
             refreshTokenExpiryDate:new Date(new Date().getTime() + (24*60*60*1000))
         }
 
+        console.log("update object created")
+
         await User.update(updateObject, {where:{email:email}})
+
+        console.log("user updated with refresh token")
 
         res.cookie('accessjwt', accessToken ,{
             httpOnly:true,
             secure:false,
             sameSite:'secure',
         })
+
+        console.log("access token cookie set")
 
         res.cookie('refreshjwt', refreshToken,{
             httpOnly:true,
@@ -85,7 +107,7 @@ const login = async(req,res) => {
             maxAge:24*60*60*1000
         })
 
-        console.log(existingUser)
+        console.log("refresh token cookie set")
 
         return res.status(200).send({
             success:true,
@@ -98,8 +120,8 @@ const login = async(req,res) => {
         })
     }
     catch(error){
-        console.log(error);
-        return res.status(500).send({success:false,body:{message:JSON.stringify(error)}})
+        console.log("Login:Error: ",error);
+        return res.status(500).send({success:false,body:{message:error}})
     }
 }
 
