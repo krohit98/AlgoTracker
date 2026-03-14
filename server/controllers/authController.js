@@ -99,7 +99,7 @@ const login = async(req,res) => {
     }
     catch(error){
         console.log(error);
-        return res.status(500).send({success:false,body:{message:'Internal server error!'}})
+        return res.status(500).send({success:false,body:{message:JSON.stringify(error)}})
     }
 }
 
